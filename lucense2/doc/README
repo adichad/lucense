@@ -1,0 +1,13 @@
+SmallWorld Search Engine
+
+= Build (commandline and Eclipse) =
+Ensure the following:-
+
+* environment variable JAVA_HOME is correctly set
+  export JAVA_HOME=<path to jdk installation>
+* environment variable CATALINA_HOME is correctly set
+  export CATALINA_HOME=<path to tomcat installation>
+* for eclipse ant builder setup, ensure the following:-
+** under <project> --(right-click)--> Properties --> Builders --> New/Edit... --> Ant Builder --> JRE --> Execution environment: --> select appropriate environment
+** under <project> --(right-click)--> Properties --> Builders --> New/Edit... --> Ant Builder --> Environment --> New --> set CATALINA_HOME=<path to tomcat installation>
+ 

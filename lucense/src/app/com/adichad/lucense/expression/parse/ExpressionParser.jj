@@ -1,0 +1,1764 @@
+options
+{
+  STATIC = false;
+
+  LOOKAHEAD= 10000;
+}
+
+PARSER_BEGIN(ExpressionParser)
+package com.adichad.lucense.expression.parse;
+import java.util.*;
+import com.adichad.lucense.expression.node.*;
+import com.adichad.lucense.expression.node.ints.*;
+import com.adichad.lucense.expression.node.booleans.*;
+import com.adichad.lucense.expression.node.strings.*;
+import com.adichad.lucense.expression.node.floats.*;
+import com.adichad.lucense.expression.node.doubles.*;
+import com.adichad.lucense.expression.*;
+import org.mozilla.javascript.*;
+
+public class ExpressionParser
+{
+  
+  private Context cx;
+  private Scriptable scope;
+  
+  Set < String > intVars = new HashSet < String > ();
+  Set < String > floatVars = new HashSet < String > ();
+  Set < String > doubleVars = new HashSet < String > ();
+  Set < String > booleanVars = new HashSet < String > ();
+  Set < String > stringVars = new HashSet < String > ();
+
+  private Stack < ExpressionNode > operands = new Stack < ExpressionNode > ();
+
+  private Stack < Operator > operators = new Stack < Operator > ();
+
+  private boolean hasAggregates = false;
+
+  private List < AggregatorExpressionNode > aggregateNodes = new ArrayList < AggregatorExpressionNode > ();
+
+  private enum Operator
+  {
+    INTPLUS, INTSUB, INTMUL, INTDIV, INTMOD, INTBITAND, INTBITOR, INTBITNOT, INTBITXOR, INTSIGNEDSHIFTLEFT, INTSIGNEDSHIFTRIGHT, INTUNSIGNEDSHIFTRIGHT, INTIF, INTMAX, INTMIN, INTJS, INTLATEJS, INTSTRLEN, INTAGGSUM, INTAGGPROD, INTAGGMIN, INTAGGMAX, INTAGGBITAND, INTAGGBITOR, 
+    FLOATPLUS, FLOATSUB, FLOATMUL, FLOATDIV, FLOATIF, FLOATMAX, FLOATMIN, FLOATJS, FLOATLATEJS, FLOATAGGSUM, FLOATAGGPROD, FLOATAGGMIN, FLOATAGGMAX, 
+    BOOLAND, BOOLOR, BOOLNOT, BOOLINTEQL, BOOLINTNEQ, BOOLINTGEQ, BOOLINTLEQ, BOOLINTGRE, BOOLINTLES, BOOLSTRINGEQL, BOOLSTRINGNEQ, BOOLIF, BOOLJS, BOOLLATEJS, 
+    STRINGCONCAT, STRINGCONCATWS, STRINGAGGCONCAT, STRINGAGGCONCATWS, STRINGAGGCONCATWSEXT, STRINGAGGCONCATFSPS, STRINGJS, STRINGLATEJS, STRINGIF, RB, LB;
+
+    public void pushNode(Stack < ExpressionNode > operands)
+    {
+      switch (this)
+      {
+        case INTPLUS :
+        {
+          List < IntExpressionNode > params = new ArrayList < IntExpressionNode > (2);
+          params.add((IntExpressionNode) operands.pop());
+          params.add((IntExpressionNode) operands.pop());
+          operands.push(new IntPlus(params));
+          break;
+        }
+        case INTSUB :
+        {
+          List < IntExpressionNode > negative = new ArrayList < IntExpressionNode > (1);
+          negative.add((IntExpressionNode) operands.pop());
+          IntExpressionNode positive = (IntExpressionNode) operands.pop();
+          operands.push(new IntMinus(positive, negative));
+          break;
+        }
+        case INTMUL :
+        {
+          List < IntExpressionNode > params = new ArrayList < IntExpressionNode > (2);
+          params.add((IntExpressionNode) operands.pop());
+          params.add((IntExpressionNode) operands.pop());
+          operands.push(new IntProduct(params));
+          break;
+        }
+        case INTDIV :
+        {
+          IntExpressionNode divisor = (IntExpressionNode) operands.pop();
+          IntExpressionNode dividend = (IntExpressionNode) operands.pop();
+          operands.push(new IntDivide(dividend, divisor));
+          break;
+        }
+        case INTMOD :
+        {
+          IntExpressionNode divisor = (IntExpressionNode) operands.pop();
+          IntExpressionNode dividend = (IntExpressionNode) operands.pop();
+          operands.push(new IntMod(dividend, divisor));
+          break;
+        }
+        case INTBITAND :
+        {
+          IntExpressionNode divisor = (IntExpressionNode) operands.pop();
+          IntExpressionNode dividend = (IntExpressionNode) operands.pop();
+          operands.push(new IntBitwiseAnd(dividend, divisor));
+          break;
+        }
+        case INTBITOR :
+        {
+          IntExpressionNode divisor = (IntExpressionNode) operands.pop();
+          IntExpressionNode dividend = (IntExpressionNode) operands.pop();
+          operands.push(new IntBitwiseOr(dividend, divisor));
+          break;
+        }
+        case INTBITNOT :
+        {
+          IntExpressionNode divisor = (IntExpressionNode) operands.pop();
+          operands.push(new IntBitwiseNot(divisor));
+          break;
+        }
+        case INTBITXOR :
+        {
+          IntExpressionNode divisor = (IntExpressionNode) operands.pop();
+          IntExpressionNode dividend = (IntExpressionNode) operands.pop();
+          operands.push(new IntBitwiseXor(dividend, divisor));
+          break;
+        }
+        case INTSIGNEDSHIFTLEFT :
+        {
+          IntExpressionNode shiftby = (IntExpressionNode) operands.pop();
+          IntExpressionNode shifted = (IntExpressionNode) operands.pop();
+          operands.push(new IntSignedShiftLeft(shifted, shiftby));
+          break;
+        }
+        case INTSIGNEDSHIFTRIGHT :
+        {
+          IntExpressionNode shiftby = (IntExpressionNode) operands.pop();
+          IntExpressionNode shifted = (IntExpressionNode) operands.pop();
+          operands.push(new IntSignedShiftRight(shifted, shiftby));
+          break;
+        }
+        case INTUNSIGNEDSHIFTRIGHT :
+        {
+          IntExpressionNode shiftby = (IntExpressionNode) operands.pop();
+          IntExpressionNode shifted = (IntExpressionNode) operands.pop();
+          operands.push(new IntUnsignedShiftRight(shifted, shiftby));
+          break;
+        }
+        case FLOATPLUS :
+        {
+          List < FloatExpressionNode > params = new ArrayList < FloatExpressionNode > (2);
+          params.add((FloatExpressionNode) operands.pop());
+          params.add((FloatExpressionNode) operands.pop());
+          operands.push(new FloatPlus(params));
+          break;
+        }
+        case FLOATSUB :
+        {
+          List < FloatExpressionNode > negative = new ArrayList < FloatExpressionNode > (1);
+          negative.add((FloatExpressionNode) operands.pop());
+          FloatExpressionNode positive = (FloatExpressionNode) operands.pop();
+          operands.push(new FloatMinus(positive, negative));
+          break;
+        }
+        case FLOATMUL :
+        {
+          List < FloatExpressionNode > params = new ArrayList < FloatExpressionNode > (2);
+          params.add((FloatExpressionNode) operands.pop());
+          params.add((FloatExpressionNode) operands.pop());
+          operands.push(new FloatProduct(params));
+          break;
+        }
+        case FLOATDIV :
+        {
+          FloatExpressionNode divisor = (FloatExpressionNode) operands.pop();
+          FloatExpressionNode dividend = (FloatExpressionNode) operands.pop();
+          operands.push(new FloatDivide(dividend, divisor));
+          break;
+        }
+        case BOOLAND :
+        {
+          BooleanExpressionNode second = (BooleanExpressionNode) operands.pop();
+          List < BooleanExpressionNode > params = new ArrayList < BooleanExpressionNode > (2);
+          params.add((BooleanExpressionNode) operands.pop());
+          params.add(second);
+          operands.push(new BooleanAnd(params));
+          break;
+        }
+        case BOOLOR :
+        {
+          BooleanExpressionNode second = (BooleanExpressionNode) operands.pop();
+          List < BooleanExpressionNode > params = new ArrayList < BooleanExpressionNode > (2);
+          params.add((BooleanExpressionNode) operands.pop());
+          params.add(second);
+          operands.push(new BooleanOr(params));
+          break;
+        }
+        case BOOLNOT :
+        {
+          BooleanExpressionNode param = (BooleanExpressionNode) operands.pop();
+          operands.push(new BooleanNot(param));
+          break;
+        }
+        case BOOLINTEQL :
+        {
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          IntExpressionNode first = (IntExpressionNode) operands.pop();
+          operands.push(new BooleanEqualInt(first, second));
+          break;
+        }
+        case BOOLINTNEQ :
+        {
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          IntExpressionNode first = (IntExpressionNode) operands.pop();
+          operands.push(new BooleanNotEqualInt(first, second));
+          break;
+        }
+        case BOOLINTGEQ :
+        {
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          IntExpressionNode first = (IntExpressionNode) operands.pop();
+          operands.push(new BooleanGreaterEqualInt(first, second));
+          break;
+        }
+        case BOOLINTLEQ :
+        {
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          IntExpressionNode first = (IntExpressionNode) operands.pop();
+          operands.push(new BooleanLesserEqualInt(first, second));
+          break;
+        }
+        case BOOLINTGRE :
+        {
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          IntExpressionNode first = (IntExpressionNode) operands.pop();
+          operands.push(new BooleanGreaterInt(first, second));
+          break;
+        }
+        case BOOLINTLES :
+        {
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          IntExpressionNode first = (IntExpressionNode) operands.pop();
+          operands.push(new BooleanLesserInt(first, second));
+          break;
+        }
+        case BOOLSTRINGEQL :
+        {
+          StringExpressionNode second = (StringExpressionNode) operands.pop();
+          StringExpressionNode first = (StringExpressionNode) operands.pop();
+          operands.push(new BooleanEqualString(first, second));
+          break;
+        }
+        case BOOLSTRINGNEQ :
+        {
+          StringExpressionNode second = (StringExpressionNode) operands.pop();
+          StringExpressionNode first = (StringExpressionNode) operands.pop();
+          operands.push(new BooleanNotEqualString(first, second));
+          break;
+        }
+        default : break;
+      }
+    }
+
+    public void pushNode(Stack < ExpressionNode > operands, Context cx, Scriptable scope, Map < String, IntExpressionNode > intvars, Map < String, FloatExpressionNode > floatvars, Map < String, DoubleExpressionNode > doublevars, Map < String, BooleanExpressionNode > booleanvars, Map < String, StringExpressionNode > stringvars, List < AggregatorExpressionNode > aggregateNodes)
+    {
+      StringLiteral first = (StringLiteral) operands.pop();
+      switch (this)
+      {
+        case INTJS :
+        {
+          IntJSExpression expr = new IntJSExpression(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          break;
+        }
+        case FLOATJS :
+        {
+          FloatJSExpression expr = new FloatJSExpression(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          break;
+        }
+        case BOOLJS :
+        {
+          BooleanJSExpression expr = new BooleanJSExpression(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          break;
+        }
+        case STRINGJS :
+        {
+          StringJSExpression expr = new StringJSExpression(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          break;
+        }
+        case INTLATEJS :
+        {
+          IntJSExpressionLate expr = new IntJSExpressionLate(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          aggregateNodes.add(expr);
+          break;
+        }
+        case FLOATLATEJS :
+        {
+          FloatJSExpressionLate expr = new FloatJSExpressionLate(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          aggregateNodes.add(expr);
+          break;
+        }
+        case BOOLLATEJS :
+        {
+          BooleanJSExpressionLate expr = new BooleanJSExpressionLate(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          aggregateNodes.add(expr);
+          break;
+        }
+        case STRINGLATEJS :
+        {
+          StringJSExpressionLate expr = new StringJSExpressionLate(first, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars);
+          operands.push(expr);
+          aggregateNodes.add(expr);
+          break;
+        }
+        default : break;
+      }
+    }
+
+    public void pushNode(Stack < ExpressionNode > operands, int args, List < AggregatorExpressionNode > aggregateNodes)
+    {
+      switch (this)
+      {
+        case INTIF :
+        {
+          IntExpressionNode third = (IntExpressionNode) operands.pop();
+          IntExpressionNode second = (IntExpressionNode) operands.pop();
+          BooleanExpressionNode first = (BooleanExpressionNode) operands.pop();
+          operands.push(new IntIf(first, second, third));
+          break;
+        }
+        case INTMAX :
+        {
+          List < IntExpressionNode > params = new LinkedList < IntExpressionNode > ();
+          for (int i = 0; i < args; i++)
+          {
+            params.add(0, (IntExpressionNode) operands.pop());
+          }
+          operands.push(new IntMax(params));
+          break;
+        }
+        case INTMIN :
+        {
+          List < IntExpressionNode > params = new LinkedList < IntExpressionNode > ();
+          for (int i = 0; i < args; i++)
+          {
+            params.add(0, (IntExpressionNode) operands.pop());
+          }
+          operands.push(new IntMin(params));
+          break;
+        }
+        case INTAGGSUM :
+        {
+          IntExpressionNode param = (IntExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new IntAggregatorSum(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case INTAGGPROD :
+        {
+          IntExpressionNode param = (IntExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new IntAggregatorProduct(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case INTAGGMIN :
+        {
+          IntExpressionNode param = (IntExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new IntAggregatorMin(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case INTAGGMAX :
+        {
+          IntExpressionNode param = (IntExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new IntAggregatorMax(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case INTAGGBITAND :
+        {
+          IntExpressionNode param = (IntExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new IntAggregatorBitwiseAnd(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case INTAGGBITOR :
+        {
+          IntExpressionNode param = (IntExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new IntAggregatorBitwiseOr(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case INTSTRLEN :
+        {
+          StringExpressionNode param = (StringExpressionNode) operands.pop();
+          operands.push(new IntLengthString(param));
+          break;
+        }
+        case FLOATIF :
+        {
+          FloatExpressionNode third = (FloatExpressionNode) operands.pop();
+          FloatExpressionNode second = (FloatExpressionNode) operands.pop();
+          BooleanExpressionNode first = (BooleanExpressionNode) operands.pop();
+          operands.push(new FloatIf(first, second, third));
+          break;
+        }
+        case FLOATMAX :
+        {
+          List < FloatExpressionNode > params = new LinkedList < FloatExpressionNode > ();
+          for (int i = 0; i < args; i++)
+          {
+            params.add(0, (FloatExpressionNode) operands.pop());
+          }
+          operands.push(new FloatMax(params));
+          break;
+        }
+        case FLOATMIN :
+        {
+          List < FloatExpressionNode > params = new LinkedList < FloatExpressionNode > ();
+          for (int i = 0; i < args; i++)
+          {
+            params.add(0, (FloatExpressionNode) operands.pop());
+          }
+          operands.push(new FloatMin(params));
+          break;
+        }
+        case FLOATAGGSUM :
+        {
+          FloatExpressionNode param = (FloatExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new FloatAggregatorSum(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case FLOATAGGPROD :
+        {
+          FloatExpressionNode param = (FloatExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new FloatAggregatorProduct(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case FLOATAGGMIN :
+        {
+          FloatExpressionNode param = (FloatExpressionNode) operands.pop();
+          operands.push(new FloatAggregatorMin(param));
+          AggregatorExpressionNode node = new FloatAggregatorMin(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case FLOATAGGMAX :
+        {
+          FloatExpressionNode param = (FloatExpressionNode) operands.pop();
+          operands.push(new FloatAggregatorMax(param));
+          AggregatorExpressionNode node = new FloatAggregatorMax(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case STRINGCONCAT :
+        {
+          List < StringExpressionNode > params = new LinkedList < StringExpressionNode > ();
+          for (int i = 0; i < args; i++)
+          {
+            params.add(0, (StringExpressionNode) operands.pop());
+          }
+          operands.push(new StringConcat(params));
+          break;
+        }
+        case STRINGCONCATWS :
+        {
+          List < StringExpressionNode > params = new LinkedList < StringExpressionNode > ();
+          for (int i = 0; i < args - 1; i++)
+          {
+            params.add(0, (StringExpressionNode) operands.pop());
+          }
+          StringExpressionNode sep = (StringExpressionNode) operands.pop();
+          operands.push(new StringConcatSeperator(sep, params));
+          break;
+        }
+        case STRINGAGGCONCAT :
+        {
+          StringExpressionNode param = (StringExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new StringAggregatorConcat(param);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case STRINGAGGCONCATWS :
+        {
+          StringExpressionNode param = (StringExpressionNode) operands.pop();
+          StringExpressionNode sep = (StringExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new StringAggregatorConcatSeperator(param, sep);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case STRINGAGGCONCATWSEXT :
+        {
+          IntExpressionNode limit = (IntExpressionNode) operands.pop();
+          IntExpressionNode offset = (IntExpressionNode) operands.pop();
+          BooleanExpressionNode filter = (BooleanExpressionNode) operands.pop();
+          StringExpressionNode param = (StringExpressionNode) operands.pop();
+          StringExpressionNode sep = (StringExpressionNode) operands.pop();
+          AggregatorExpressionNode node = new StringAggregatorConcatSeperatorExtended(param, sep, filter, offset, limit);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case STRINGAGGCONCATFSPS :
+        {
+          IntLiteral limit = (IntLiteral) operands.pop();
+          IntLiteral offset = (IntLiteral) operands.pop();
+          BooleanExpressionNode filter = (BooleanExpressionNode) operands.pop();
+          BooleanLiteral ascending = (BooleanLiteral) operands.pop();
+          IntExpressionNode sortby = (IntExpressionNode) operands.pop();
+          StringExpressionNode param = (StringExpressionNode) operands.pop();
+          StringLiteral sep = (StringLiteral) operands.pop();
+          AggregatorExpressionNode node = new StringAggregatorFilteredSortedPagedSeperatedConcat(param, sep, sortby, ascending, filter, offset, limit);
+          aggregateNodes.add(node);
+          operands.push(node);
+          break;
+        }
+        case STRINGIF :
+        {
+          StringExpressionNode third = (StringExpressionNode) operands.pop();
+          StringExpressionNode second = (StringExpressionNode) operands.pop();
+          BooleanExpressionNode first = (BooleanExpressionNode) operands.pop();
+          operands.push(new StringIf(first, second, third));
+          break;
+        }
+        case BOOLIF :
+        {
+          BooleanExpressionNode third = (BooleanExpressionNode) operands.pop();
+          BooleanExpressionNode second = (BooleanExpressionNode) operands.pop();
+          BooleanExpressionNode first = (BooleanExpressionNode) operands.pop();
+          operands.push(new BooleanIf(first, second, third));
+          break;
+        }
+        default :
+      }
+    }
+
+    public int precedence()
+    {
+      switch (this)
+      {
+        case INTPLUS : return 5;
+        case INTSUB : return 5;
+        case INTMUL : return 6;
+        case INTDIV : return 6;
+        case INTMOD : return 6;
+        case INTBITAND : return 6;
+        case INTBITOR : return 6;
+        case INTBITNOT : return 7;
+        case INTBITXOR : return 6;
+        case INTSIGNEDSHIFTLEFT : return 6;
+        case INTSIGNEDSHIFTRIGHT : return 6;
+        case INTUNSIGNEDSHIFTRIGHT : return 6;
+        case BOOLAND : return 2;
+        case BOOLOR : return 2;
+        case BOOLNOT : return 3;
+        case BOOLINTEQL : return 4;
+        case BOOLINTNEQ : return 4;
+        case BOOLINTGEQ : return 4;
+        case BOOLINTLEQ : return 4;
+        case BOOLINTGRE : return 4;
+        case BOOLINTLES : return 4;
+        case BOOLSTRINGEQL : return 4;
+        case BOOLSTRINGNEQ : return 4;
+        case RB : return 0;
+        case LB : return 0;
+        default : return 0;
+      }
+    }
+  }
+
+  private void procLB()
+  {
+    operators.push(Operator.LB);
+  }
+
+  private void procRB()
+  {
+    Operator currOp;
+    while (!operators.isEmpty() && (currOp = operators.pop()) != Operator.LB)
+    {
+      currOp.pushNode(operands);
+    }
+  }
+
+  private void procOp(Operator op)
+  {
+    int prec = op.precedence();
+    while (!operators.isEmpty() && operators.peek().precedence() >= prec)
+    {
+      operators.pop().pushNode(operands);
+    }
+    operators.push(op);
+  }
+
+  private void procOp(Operator op, int args)
+  {
+    op.pushNode(operands, args, aggregateNodes);
+  }
+
+  private void procOpJS(Operator op, Map < String, IntExpressionNode > intvars, Map < String, FloatExpressionNode > floatvars, Map < String, DoubleExpressionNode > doublevars, Map < String, BooleanExpressionNode > booleanvars, Map < String, StringExpressionNode > stringvars)
+  {
+    op.pushNode(operands, cx, scope, intvars, floatvars, doublevars, booleanvars, stringvars, aggregateNodes);
+  }
+}
+
+PARSER_END(ExpressionParser)
+
+SKIP :
+{
+  "\r"
+| " "
+| "\t"
+| "\n"
+}
+
+TOKEN : //Type declarations
+{
+  < INTTYPE : "[int]" >
+| < FLOATTYPE : "[float]" >
+| < BOOLTYPE : "[bool]" >
+| < DOUBLETYPE : "[double]" >
+| < STRINGTYPE : "[string]" >
+}
+
+TOKEN : //functions||Reserved Keywords
+{
+  < IF : "if" >
+| < MAX : "max" >
+| < MIN : "min" >
+| < AVG : "avg" >
+| < SQRT : "sqrt" >
+| < POW : "pow" >
+| < JS : "js" >
+| < LATEJS : "lazyjs" >
+| < AGGSUM : "sum" >
+| < AGGPROD : "prod" >
+| < AGGMAX : "aggmax" >
+| < AGGMIN : "aggmin" >
+| < AGGBITAND : "aggbitand" >
+| < AGGBITOR : "aggbitor" >
+| < STRLEN : "strlen" >
+| < CONCAT : "strcat" >
+| < CONCATWS : "strcatws" >
+| < AGGCONCAT : "aggstrcat" >
+| < AGGCONCATWS : "aggstrcatws" >
+| < AGGCONCATWSEXT : "aggstrcatwsext" >
+| < AGGCONCATFSPS : "aggstrcatfsps" >
+| < AUXFILTER : "auxfilter" >
+}
+
+TOKEN : //Logical Operators
+{
+  < EQL : "==" >
+| < GEQ : ">=" >
+| < LEQ : "<=" >
+| < GRE : ">" >
+| < LES : "<" >
+| < NEQ : "!=" >
+| < AND : "&&" >
+| < OR : "||" >
+| < NOT : "!" >
+}
+
+TOKEN : //Arithmetic Operators
+{
+  < PLUS : "+" >
+| < SUB : "-" >
+| < MUL : "*" >
+| < DIV : "/" >
+| < MOD : "%" >
+| < BITXOR : "^" >
+| < BITAND : "&" >
+| < BITOR : "|" >
+| < BITNOT : "~" >
+| < SIGNEDSHIFTLEFT : "<<" >
+| < SIGNEDSHIFTRIGHT : ">>" >
+| < UNSIGNEDSHIFTRIGHT : ">>>" >
+}
+
+TOKEN : //Brackets and Comma
+{
+  < LB : "(" >
+| < RB : ")" >
+| < COM : "," >
+| < ASSIGNMENT : "=" >
+  //|
+  //<LSB : "[">
+  //|
+  //<RSB : "]">
+}
+
+TOKEN : //Literals
+{
+  < INT : ([ "0"-"9" ])+ >
+| < FLOAT :
+    ([ "0"-"9" ])+
+    (
+      "." ([ "0"-"9" ])+
+    )?
+    "f" >
+| < BOOL :
+    "true"
+  | "false" >
+| < DOUBLE :
+    ([ "0"-"9" ])+
+    (
+      "." ([ "0"-"9" ])+
+    )?
+    "d" >
+| < STRING : "\"" (~[ "\"" ])* "\"" >
+| < QUOTE : "'" >
+  //|
+  //<CH : (~["'"]) >
+}
+
+TOKEN : //Variables
+{
+  < ID : ([ "a"-"z", "A"-"Z", "_" ]) ([ "a"-"z", "A"-"Z", "_", "0"-"9" ])* >
+}
+
+ExpressionTree parse(Context cx, Scriptable scope) :
+{
+  this.cx = cx;
+  this.scope = scope;
+}
+{
+  (
+    boolexpression() < EOF >
+  )
+  {
+    procRB();
+    BooleanExpressionNode root = (BooleanExpressionNode) operands.pop();
+    if (hasAggregates)
+    {
+      return new BooleanAggregatingExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars, aggregateNodes);
+    }
+    else
+    {
+      return new BooleanExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars);
+    }
+  }
+|
+  (
+    intexpression() < EOF >
+  )
+  {
+    procRB();
+    IntExpressionNode root = (IntExpressionNode) operands.pop();
+    if (hasAggregates)
+    {
+      return new IntAggregatingExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars, aggregateNodes);
+    }
+    else
+    {
+      return new IntExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars);
+    }
+  }
+|
+  (
+    stringexpression() < EOF >
+  )
+  {
+    procRB();
+    StringExpressionNode root = (StringExpressionNode) operands.pop();
+    if (hasAggregates)
+    {
+      return new StringAggregatingExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars, aggregateNodes);
+    }
+    else
+    {
+      return new StringExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars);
+    }
+  }
+|
+  (
+    floatexpression() < EOF >
+  )
+  {
+    procRB();
+    FloatExpressionNode root = (FloatExpressionNode) operands.pop();
+    if (hasAggregates)
+    {
+      return new FloatAggregatingExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars, aggregateNodes);
+    }
+    else
+    {
+      return new FloatExpressionTree(root, intVars, floatVars, doubleVars, booleanVars, stringVars);
+    }
+  }
+  {}
+}
+
+void namedexpression(Map < String, IntExpressionNode > intvars, Map < String, FloatExpressionNode > floatvars, Map < String, DoubleExpressionNode > doublevars, Map < String, BooleanExpressionNode > booleanvars, Map < String, StringExpressionNode > stringvars) :
+{
+  Token t;
+}
+{
+  (
+    t = < ID > < ASSIGNMENT > boolexpression()
+  )
+  {
+    BooleanExpressionNode root = (BooleanExpressionNode) operands.pop();
+    booleanvars.put(t.toString(), root);
+  }
+|
+  (
+    t = < ID > < ASSIGNMENT > intexpression()
+  )
+  {
+    IntExpressionNode root = (IntExpressionNode) operands.pop();
+    intvars.put(t.toString(), root);
+  }
+|
+  (
+    t = < ID > < ASSIGNMENT > stringexpression()
+  )
+  {
+    StringExpressionNode root = (StringExpressionNode) operands.pop();
+    stringvars.put(t.toString(), root);
+  }
+|
+  (
+    t = < ID > < ASSIGNMENT > stringexpression()
+  )
+  {
+    FloatExpressionNode root = (FloatExpressionNode) operands.pop();
+    floatvars.put(t.toString(), root);
+  }
+}
+
+void stringexpression() :
+{}
+{
+  (
+    stringleaf()
+  | lb() stringexpression() rb()
+  )
+  {}
+}
+
+void floatexpression() :
+{}
+{
+  (
+    floatleaf() floatbinaryoperator() floatexpression()
+  | lb() floatexpression() rb() [ floatbinaryoperator() floatexpression() ]
+  | floatleaf()
+  )
+  {}
+}
+
+void intexpression() :
+{}
+{
+  (
+    intleaf() intbinaryoperator() intexpression()
+  | intunaryoperator() intexpression()
+  | lb() intexpression() rb() [ intbinaryoperator() intexpression() ]
+  | intleaf()
+  )
+  {}
+}
+
+void boolexpression() :
+{}
+{
+  (
+    boolleaf() boolbinaryoperator() boolexpression()
+  | boolunaryoperator() boolexpression()
+  | lb() boolexpression() rb() [ boolbinaryoperator() boolexpression() ]
+  | boolleaf()
+  )
+  {}
+}
+
+void intmax() :
+{
+  int i = 0;
+}
+{
+  (
+    < MAX > lb() intexpression()
+    {
+      i++;
+    }
+    (
+      comma() intexpression()
+      {
+        i++;
+      }
+    )*
+    rb()
+  )
+  {
+    procOp(Operator.INTMAX, i);
+  }
+}
+
+void floatmax() :
+{
+  int i = 0;
+}
+{
+  (
+    < MAX > lb() floatexpression()
+    {
+      i++;
+    }
+    (
+      comma() floatexpression()
+      {
+        i++;
+      }
+    )*
+    rb()
+  )
+  {
+    procOp(Operator.FLOATMAX, i);
+  }
+}
+
+void intmin() :
+{
+  int i = 0;
+}
+{
+  (
+    < MAX > lb() intexpression()
+    {
+      i++;
+    }
+    (
+      comma() intexpression()
+      {
+        i++;
+      }
+    )*
+    rb()
+  )
+  {
+    procOp(Operator.INTMIN, i);
+  }
+}
+
+void floatmin() :
+{
+  int i = 0;
+}
+{
+  (
+    < MAX > lb() floatexpression()
+    {
+      i++;
+    }
+    (
+      comma() floatexpression()
+      {
+        i++;
+      }
+    )*
+    rb()
+  )
+  {
+    procOp(Operator.FLOATMIN, i);
+  }
+}
+
+void intaggsum() :
+{}
+{
+  (
+    < AGGSUM > lb() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTAGGSUM, 1);
+    hasAggregates = true;
+  }
+}
+
+void floataggsum() :
+{}
+{
+  (
+    < AGGSUM > lb() floatexpression() rb()
+  )
+  {
+    procOp(Operator.FLOATAGGSUM, 1);
+    hasAggregates = true;
+  }
+}
+
+void intaggmax() :
+{}
+{
+  (
+    < AGGMAX > lb() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTAGGMAX, 1);
+    hasAggregates = true;
+  }
+}
+
+void floataggmax() :
+{}
+{
+  (
+    < AGGMAX > lb() floatexpression() rb()
+  )
+  {
+    procOp(Operator.FLOATAGGMAX, 1);
+    hasAggregates = true;
+  }
+}
+
+void intaggmin() :
+{}
+{
+  (
+    < AGGMIN > lb() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTAGGMIN, 1);
+    hasAggregates = true;
+  }
+}
+
+void floataggmin() :
+{}
+{
+  (
+    < AGGMIN > lb() floatexpression() rb()
+  )
+  {
+    procOp(Operator.FLOATAGGMIN, 1);
+    hasAggregates = true;
+  }
+}
+
+void intaggbitand() :
+{}
+{
+  (
+    < AGGBITAND > lb() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTAGGBITAND, 1);
+    hasAggregates = true;
+  }
+}
+
+void intaggbitor() :
+{}
+{
+  (
+    < AGGBITOR > lb() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTAGGBITOR, 1);
+    hasAggregates = true;
+  }
+}
+
+void intaggproduct() :
+{}
+{
+  (
+    < AGGPROD > lb() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTAGGPROD, 1);
+    hasAggregates = true;
+  }
+}
+
+void floataggproduct() :
+{}
+{
+  (
+    < AGGPROD > lb() floatexpression() rb()
+  )
+  {
+    procOp(Operator.FLOATAGGPROD, 1);
+    hasAggregates = true;
+  }
+}
+
+void intjsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < INTTYPE > < JS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.INTJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+  }
+}
+
+void intlatejsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < INTTYPE > < LATEJS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.INTLATEJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+    hasAggregates = true;
+  }
+}
+
+void floatjsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < FLOATTYPE > < JS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.FLOATJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+  }
+}
+
+void floatlatejsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < FLOATTYPE > < LATEJS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.FLOATLATEJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+    hasAggregates = true;
+  }
+}
+
+void intif() :
+{}
+{
+  (
+    < IF > lb() boolexpression() comma() intexpression() comma() intexpression() rb()
+  )
+  {
+    procOp(Operator.INTIF, 3);
+  }
+}
+
+void floatif() :
+{}
+{
+  (
+    < IF > lb() boolexpression() comma() floatexpression() comma() floatexpression() rb()
+  )
+  {
+    procOp(Operator.FLOATIF, 3);
+  }
+}
+
+void stringif() :
+{}
+{
+  (
+    < IF > lb() boolexpression() comma() stringexpression() comma() stringexpression() rb()
+  )
+  {
+    procOp(Operator.STRINGIF, 3);
+  }
+}
+
+void intstringlength() :
+{}
+{
+  (
+    < STRLEN > lb() stringexpression() rb()
+  )
+  {
+    procOp(Operator.INTSTRLEN, 1);
+  }
+}
+
+///////////////////////////////////////////////////////////////
+void stringconcat() :
+{
+  int i = 0;
+}
+{
+  (
+    < CONCAT > lb() stringexpression()
+    {
+      i++;
+    }
+    (
+      comma() stringexpression()
+      {
+        i++;
+      }
+    )*
+    rb()
+  )
+  {
+    procOp(Operator.STRINGCONCAT, i);
+  }
+}
+
+void stringconcatws() :
+{
+  int i = 0;
+}
+{
+  (
+    < CONCATWS > lb() stringexpression()
+    {
+      i++;
+    }
+    comma() stringexpression()
+    {
+      i++;
+    }
+    (
+      comma() stringexpression()
+      {
+        i++;
+      }
+    )*
+    rb()
+  )
+  {
+    procOp(Operator.STRINGCONCATWS, i);
+  }
+}
+
+void stringaggconcat() :
+{}
+{
+  (
+    < AGGCONCAT > lb() stringexpression() rb()
+  )
+  {
+    procOp(Operator.STRINGAGGCONCAT, 1);
+    hasAggregates = true;
+  }
+}
+
+void stringaggconcatws() :
+{}
+{
+  (
+    < AGGCONCATWS > lb() stringexpression() comma() stringexpression() rb()
+  )
+  {
+    procOp(Operator.STRINGAGGCONCATWS, 2);
+    hasAggregates = true;
+  }
+}
+
+void stringaggconcatwsext() :
+{}
+{
+  (
+    < AGGCONCATWSEXT > lb() stringexpression() comma() stringexpression() comma() boolexpression() comma() intexpression() comma() intexpression() rb()
+  )
+  {
+    procOp(Operator.STRINGAGGCONCATWSEXT, 5);
+    hasAggregates = true;
+  }
+}
+
+void stringaggconcatfsps() :
+{}
+{
+  (
+    < AGGCONCATFSPS > lb() stringliteral() comma() stringexpression() comma() intexpression() comma() boolliteral() comma() boolexpression() comma() intliteral() comma() intliteral() rb()
+  )
+  {
+    procOp(Operator.STRINGAGGCONCATFSPS, 7);
+    hasAggregates = true;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+void boolif() :
+{}
+{
+  (
+    < IF > lb() boolexpression() comma() boolexpression() comma() boolexpression() rb()
+  )
+  {
+    procOp(Operator.BOOLIF, 3);
+  }
+}
+
+void boolauxfilter() :
+{}
+{
+  (
+    < AUXFILTER > lb() stringliteral() comma() stringliteral() rb()
+  )
+  {
+    String rowid = ((StringLiteral) operands.pop()).evaluate(null, null, null, null, null, null); 
+    String indexname = ((StringLiteral) operands.pop()).evaluate(null, null, null, null, null, null);
+    String varname = "_auxlookup_" +indexname + "_" + rowid + "_";
+    AggregatorExpressionNode node = new BooleanVariable (varname);
+    operands.push(node);
+    aggregateNodes.add(node);
+    booleanVars.add(varname);
+  }
+}
+
+void intcompare() :
+{}
+{
+  (
+    < EQL >
+    {
+      procOp(Operator.BOOLINTEQL);
+    }
+  | < NEQ >
+    {
+      procOp(Operator.BOOLINTNEQ);
+    }
+  | < GEQ >
+    {
+      procOp(Operator.BOOLINTGEQ);
+    }
+  | < LEQ >
+    {
+      procOp(Operator.BOOLINTLEQ);
+    }
+  | < GRE >
+    {
+      procOp(Operator.BOOLINTGRE);
+    }
+  | < LES >
+    {
+      procOp(Operator.BOOLINTLES);
+    }
+  )
+  {
+  }
+}
+
+void stringcompare() :
+{}
+{
+  (
+    < EQL >
+    {
+      procOp(Operator.BOOLSTRINGEQL);
+    }
+  | < NEQ >
+    {
+      procOp(Operator.BOOLSTRINGNEQ);
+    }
+  )
+  {
+  }
+}
+
+void boolbinaryoperator() :
+{}
+{
+  (
+    < AND >
+    {
+      procOp(Operator.BOOLAND);
+    }
+  | < OR >
+    {
+      procOp(Operator.BOOLOR);
+    }
+  )
+  {}
+}
+
+void boolunaryoperator() :
+{}
+{
+  (< NOT >)
+  {
+    procOp(Operator.BOOLNOT);
+  }
+}
+
+void intbinaryoperator() :
+{}
+{
+  (
+    < PLUS >
+    {
+      procOp(Operator.INTPLUS);
+    }
+  | < SUB >
+    {
+      procOp(Operator.INTSUB);
+    }
+  | < MUL >
+    {
+      procOp(Operator.INTMUL);
+    }
+  | < DIV >
+    {
+      procOp(Operator.INTDIV);
+    }
+  | < MOD >
+    {
+      procOp(Operator.INTMOD);
+    }
+  | < BITOR >
+    {
+      procOp(Operator.INTBITOR);
+    }
+  | < BITAND >
+    {
+      procOp(Operator.INTBITAND);
+    }
+  | < BITXOR >
+    {
+      procOp(Operator.INTBITXOR);
+    }
+  | < SIGNEDSHIFTLEFT >
+    {
+      procOp(Operator.INTSIGNEDSHIFTLEFT);
+    }
+  | < SIGNEDSHIFTRIGHT >
+    {
+      procOp(Operator.INTSIGNEDSHIFTRIGHT);
+    }
+  | < UNSIGNEDSHIFTRIGHT >
+    {
+      procOp(Operator.INTUNSIGNEDSHIFTRIGHT);
+    }
+  )
+  {
+  }
+}
+
+void intunaryoperator() :
+{}
+{
+  (
+    < BITNOT >
+    {
+      procOp(Operator.INTBITNOT);
+    }
+  )
+  {
+  }
+}
+
+void floatbinaryoperator() :
+{}
+{
+  (
+    < PLUS >
+    {
+      procOp(Operator.FLOATPLUS);
+    }
+  | < SUB >
+    {
+      procOp(Operator.FLOATSUB);
+    }
+  | < MUL >
+    {
+      procOp(Operator.FLOATMUL);
+    }
+  | < DIV >
+    {
+      procOp(Operator.FLOATDIV);
+    }
+  )
+  {
+  }
+}
+
+void stringleaf() :
+{
+  Token t;
+}
+{
+  stringconcat()
+| stringconcatws()
+| stringaggconcat()
+| stringaggconcatws()
+| stringaggconcatwsext()
+| stringaggconcatfsps()
+| stringif()
+| stringjsexpression()
+| stringlatejsexpression()
+| (< STRINGTYPE > t = < ID >)
+  {
+    AggregatorExpressionNode node = new StringVariable(t.toString());
+    operands.push(node);
+    aggregateNodes.add(node);
+    stringVars.add(t.toString());
+  }
+| stringliteral()
+}
+
+void stringjsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < STRINGTYPE > < JS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.STRINGJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+  }
+}
+
+void stringlatejsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < STRINGTYPE > < LATEJS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.STRINGLATEJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+    hasAggregates = true;
+  }
+}
+
+void stringliteral() :
+{
+  Token t;
+}
+{
+  (t = < STRING >)
+  {
+    operands.push(new StringLiteral(t.toString().trim().substring(1, t.toString().trim().length() - 1)));
+  }
+}
+
+void floatleaf() :
+{
+  Token t;
+}
+{
+  floatif()
+| floatmax()
+| floatmin()
+| floatjsexpression()
+| floatlatejsexpression()
+| floataggsum()
+| floataggmax()
+| floataggmin()
+| floataggproduct()
+| (< FLOATTYPE > t = < ID >)
+  {
+    AggregatorExpressionNode node = new FloatVariable(t.toString());
+    operands.push(node);
+    aggregateNodes.add(node);
+    floatVars.add(t.toString());
+  }
+| (t = < FLOAT >)
+  {
+    operands.push(new FloatLiteral(Float.parseFloat(t.toString())));
+  }
+}
+
+void intleaf() :
+{
+  Token t;
+}
+{
+  intif()
+| intmax()
+| intmin()
+| intjsexpression()
+| intlatejsexpression()
+| intaggsum()
+| intaggmax()
+| intaggmin()
+| intaggbitand()
+| intaggbitor()
+| intaggproduct()
+| intstringlength()
+| (< INTTYPE > t = < ID >)
+  {
+    AggregatorExpressionNode node = new IntVariable(t.toString());
+    operands.push(node);
+    aggregateNodes.add(node);
+    intVars.add(t.toString());
+  }
+| intliteral()
+}
+
+void intliteral() :
+{
+  Token t;
+}
+{
+  (t = < INT >)
+  {
+    operands.push(new IntLiteral(Integer.parseInt(t.toString())));
+  }
+}
+
+void boolleaf() :
+{
+  Token t;
+}
+{
+  boolif()
+| boolauxfilter() 
+| booljsexpression()
+| boollatejsexpression()
+| intexpression() intcompare() intexpression()
+| stringexpression() stringcompare() stringexpression()
+| (< BOOLTYPE > t = < ID >)
+  {
+    AggregatorExpressionNode node = new BooleanVariable(t.toString());
+    operands.push(node);
+    aggregateNodes.add(node);
+    booleanVars.add(t.toString());
+  }
+| boolliteral()
+}
+
+void boolliteral() :
+{
+  Token t;
+}
+{
+  (t = < BOOL >)
+  {
+    operands.push(new BooleanLiteral(Boolean.parseBoolean(t.toString())));
+  }
+}
+
+void booljsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < BOOLTYPE > < JS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.BOOLJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+  }
+}
+
+void boollatejsexpression() :
+{
+  Map < String, IntExpressionNode > intvars = new HashMap < String, IntExpressionNode > ();
+  Map < String, FloatExpressionNode > floatvars = new HashMap < String, FloatExpressionNode > ();
+  Map < String, DoubleExpressionNode > doublevars = new HashMap < String, DoubleExpressionNode > ();
+  Map < String, BooleanExpressionNode > booleanvars = new HashMap < String, BooleanExpressionNode > ();
+  Map < String, StringExpressionNode > stringvars = new HashMap < String, StringExpressionNode > ();
+}
+{
+  (
+    < BOOLTYPE > < LATEJS > lb() stringliteral()
+    (
+      comma() namedexpression(intvars, floatvars, doublevars, booleanvars, stringvars)
+    )*
+    rb()
+  )
+  {
+    procOpJS(Operator.BOOLLATEJS, intvars, floatvars, doublevars, booleanvars, stringvars);
+    hasAggregates = true;
+  }
+}
+
+void lb() :
+{}
+{
+  (< LB >)
+  {
+    procLB();
+  }
+}
+
+void rb() :
+{}
+{
+  (< RB >)
+  {
+    procRB();
+  }
+}
+
+void comma() :
+{}
+{
+  (< COM >)
+  {
+    procRB();
+    procLB();
+  }
+}

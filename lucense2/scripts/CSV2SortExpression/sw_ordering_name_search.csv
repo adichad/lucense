@@ -1,0 +1,9 @@
+1,Full In Order Match,Yes,Yes
+2,Full In Order Match,No,Yes
+3,Full In Order Match,Yes,No
+4,Full In Order Match,No,No
+5,Full Name Full Query In Order Match,Yes,Yes
+6,Full Name Full Query In Order Match,No,Yes
+7,Full Name Full Query In Order Match,Yes,No
+8,Full Name Full Query In Order Match,No,No
+10,No Match,No,No

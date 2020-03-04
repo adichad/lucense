@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="adichad-nb" name="com.adichad.lucense.analysis.CustomizedAnalyzerTest" tests="1" time="0.188" timestamp="2011-12-04T04:19:55">
+  <properties>
+    <property name="ant.project.invoked-targets" value="testrun" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/i386" />
+    <property name="java.vm.version" value="20.1-b02" />
+    <property name="ant.library.dir" value="/usr/share/ant/lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on August 19 2011" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/adichad/svn/lucense-sourceforge/trunk" />
+    <property name="java.runtime.version" value="1.6.0_26-b03" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/adichad/svn/lucense-sourceforge/trunk" />
+    <property name="java.endorsed.dirs" value="/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="compile" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/usr/share/ant/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="reports.tests" value="test" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="component.name" value="lucense" />
+    <property name="os.name" value="Linux" />
+    <property name="ant.home" value="/usr/share/ant" />
+    <property name="ant.project.name" value="nse" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="java.library.path" value="/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/i386/server:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/i386:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="nse.java.binary" value="build" />
+    <property name="java.class.version" value="50.0" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="os.version" value="3.0.0-13-generic" />
+    <property name="ant.file" value="/home/adichad/svn/lucense-sourceforge/trunk/build.xml" />
+    <property name="user.home" value="/home/adichad" />
+    <property name="ant.file.type.nse" value="file" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="nse.java.source" value="src" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="java.class.path" value="/home/adichad/svn/lucense-sourceforge/trunk/build/instrumented-classes/app:/home/adichad/svn/lucense-sourceforge/trunk/lib/asm-3.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/asm-tree-3.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/bobo-browse-2.5.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/cobertura.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/commons-codec-1.2.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/commons-collections-3.2.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/commons-configuration-1.6.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/commons-daemon.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/commons-lang-2.3.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/commons-logging-1.1.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/db.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/fastutil-6.0.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/geronimo-jta_1.1_spec-1.1.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/jakarta-oro-2.0.8.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/javacc.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/js.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/junit-4.7.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/kamikaze-3.0.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/log4j-1.2.15.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/lucene-analyzers-3.3.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/lucene-core-3.3.0.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/maxent-2.5.2.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/mysql-connector-java-5.1.6-bin.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-community-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-cypher-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-graph-algo-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-graph-matching-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-jmx-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-kernel-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-lucene-index-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-shell-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/neo4j-udc-1.4.1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/opennlp-tools-1.4.3.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.asm-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.beans-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.context-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.context.support-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.core-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.expression-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/org.springframework.transaction-3.0.4.RELEASE.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/scala-library-2.9.0-1.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/svnClientAdapter.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/svnant.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/svnjavahl.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/svnkit.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/trove.jar:/home/adichad/svn/lucense-sourceforge/trunk/lib/weka.jar:/home/adichad/svn/lucense-sourceforge/trunk/build/classes/app:/home/adichad/svn/lucense-sourceforge/trunk/build/classes/test:/usr/share/java/ant-launcher-1.8.2.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar" />
+    <property name="user.name" value="adichad" />
+    <property name="nse.java.build" value="." />
+    <property name="deps.java.library.external" value="dep" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner com.adichad.lucense.analysis.CustomizedAnalyzerTest filtertrace=true haltOnError=false haltOnFailure=false formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=false outputtoformatters=true logfailedtests=true logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,/home/adichad/svn/lucense-sourceforge/trunk/test/results/xml/TEST-com.adichad.lucense.analysis.CustomizedAnalyzerTest.xml crashfile=/home/adichad/svn/lucense-sourceforge/trunk/junitvmwatcher6243190518110259716.properties propsfile=/home/adichad/svn/lucense-sourceforge/trunk/junit4054619444055554560.properties" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.home" value="/usr/lib/jvm/java-6-sun-1.6.0.26/jre" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_26" />
+    <property name="java.ext.dirs" value="/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/resources.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/rt.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/jsse.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/jce.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/charsets.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/lib/modules/jdk.boot.jar:/usr/lib/jvm/java-6-sun-1.6.0.26/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="ant.file.nse" value="/home/adichad/svn/lucense-sourceforge/trunk/build.xml" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="nse.java.library.external" value="lib" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.adichad.lucense.analysis.CustomizedAnalyzerTest" name="testTokenStream" time="0.12" />
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,98 @@
+1,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes,Full In Order Match
+2,No Match,Full Query Any Order Match,Yes,Yes,Full In Order Match
+3,Full Query Any Order Match,No Match,Yes,Yes,Full In Order Match
+4,No Match,No Match,Yes,Yes,Full In Order Match
+5,Full Query Any Order Match,Full Query Any Order Match,No,Yes,Full In Order Match
+6,No Match,Full Query Any Order Match,No,Yes,Full In Order Match
+7,Full Query Any Order Match,No Match,No,Yes,Full In Order Match
+8,No Match,No Match,No,Yes,Full In Order Match
+9,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes,Full Query In Order Match
+10,Full Query Any Order Match,No Match,Yes,Yes,Full Query In Order Match
+11,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes,Full Any Order Match
+12,Full Query Any Order Match,No Match,Yes,Yes,Full Any Order Match
+13,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes,Full Query Any Order Match
+14,Full Query Any Order Match,No Match,Yes,Yes,Full Query Any Order Match
+15,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes,Partial Query Match
+16,Full Query Any Order Match,No Match,Yes,Yes,Partial Query Match
+17,Full Query Any Order Match,Full Query Any Order Match,No,Yes,Full Query In Order Match
+58,Full Query Any Order Match,No Match,No,Yes,Full Query In Order Match
+19,Full Query Any Order Match,Full Query Any Order Match,No,Yes,Full Any Order Match
+58,Full Query Any Order Match,No Match,No,Yes,Full Any Order Match
+21,Full Query Any Order Match,Full Query Any Order Match,No,Yes,Full Query Any Order Match
+58,Full Query Any Order Match,No Match,No,Yes,Full Query Any Order Match
+23,Full Query Any Order Match,Full Query Any Order Match,No,Yes,Partial Query Match
+58,Full Query Any Order Match,No Match,No,Yes,Partial Query Match
+25,No Match,Full Query Any Order Match,Yes,Yes,Full Query In Order Match
+26,No Match,No Match,Yes,Yes,Full Query In Order Match
+27,No Match,Full Query Any Order Match,No,Yes,Full Query In Order Match
+58,No Match,No Match,No,Yes,Full Query In Order Match
+29,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes,No Match
+30,Full Query Any Order Match,No Match,Yes,Yes,No Match
+31,Full Query Any Order Match,Full Query Any Order Match,Yes,No,No Match
+32,Full Query Any Order Match,Full Query Any Order Match,No,Yes,No Match
+58,Full Query Any Order Match,No Match,No,Yes,No Match
+60,Full Query Any Order Match,Full Query Any Order Match,No,No,No Match
+35,No Match,Full Query Any Order Match,Yes,Yes,Full Any Order Match
+36,No Match,No Match,Yes,Yes,Full Any Order Match
+37,No Match,Full Query Any Order Match,Yes,Yes,Full Query Any Order Match
+38,No Match,No Match,Yes,Yes,Full Query Any Order Match
+39,No Match,Full Query Any Order Match,No,Yes,Full Any Order Match
+40,No Match,No Match,No,Yes,Full Any Order Match
+41,No Match,Full Query Any Order Match,No,Yes,Full Query Any Order Match
+42,No Match,No Match,No,Yes,Full Query Any Order Match
+43,Full Query Any Order Match,Full Query Any Order Match,Yes,No,Full In Order Match
+44,Full Query Any Order Match,Full Query Any Order Match,Yes,No,Full Query In Order Match
+45,Full Query Any Order Match,Full Query Any Order Match,Yes,No,Full Any Order Match
+46,Full Query Any Order Match,Full Query Any Order Match,Yes,No,Full Query Any Order Match
+47,Full Query Any Order Match,Full Query Any Order Match,Yes,No,Partial Query Match
+48,Full Query Any Order Match,Full Query Any Order Match,No,No,Full In Order Match
+49,Full Query Any Order Match,Full Query Any Order Match,No,No,Full Query In Order Match
+50,Full Query Any Order Match,Full Query Any Order Match,No,No,Full Any Order Match
+51,Full Query Any Order Match,Full Query Any Order Match,No,No,Full Query Any Order Match
+52,Full Query Any Order Match,Full Query Any Order Match,No,No,Partial Query Match
+53,No Match,Full Query Any Order Match,Yes,No,Full In Order Match
+54,No Match,Full Query Any Order Match,Yes,No,Full Query In Order Match
+55,No Match,Full Query Any Order Match,No,No,Full In Order Match
+56,No Match,Full Query Any Order Match,No,No,Full Query In Order Match
+58,Full Query Any Order Match,No Match,Yes,No,Full In Order Match
+58,Full Query Any Order Match,No Match,Yes,No,Full Query In Order Match
+58,Full Query Any Order Match,No Match,Yes,No,Full Any Order Match
+58,Full Query Any Order Match,No Match,Yes,No,Full Query Any Order Match
+58,Full Query Any Order Match,No Match,Yes,No,Partial Query Match
+58,Full Query Any Order Match,No Match,Yes,No,No Match
+63,Full Query Any Order Match,No Match,No,No,Full In Order Match
+64,Full Query Any Order Match,No Match,No,No,Full Query In Order Match
+65,Full Query Any Order Match,No Match,No,No,Full Any Order Match
+66,Full Query Any Order Match,No Match,No,No,Full Query Any Order Match
+58,Full Query Any Order Match,No Match,No,No,Partial Query Match
+68,No Match,No Match,Yes,No,Full In Order Match
+69,No Match,No Match,No,No,Full In Order Match
+70,Partial Query Match,Full Query Any Order Match,No,No,Partial Query Match
+71,Partial Query Match,No Match,No,No,Partial Query Match
+72,Full Query Any Order Match,No Match,No,No,No Match
+73,No Match,Full Query Any Order Match,Yes,Yes,Partial Query Match
+74,No Match,Full Query Any Order Match,Yes,No,Full Any Order Match
+75,No Match,Full Query Any Order Match,Yes,No,Full Query Any Order Match
+76,No Match,Full Query Any Order Match,Yes,No,Partial Query Match
+77,No Match,Full Query Any Order Match,Yes,Yes,No Match
+78,No Match,No Match,Yes,No,Full Query In Order Match
+79,No Match,No Match,Yes,No,Full Any Order Match
+80,No Match,No Match,Yes,No,Full Query Any Order Match
+81,No Match,No Match,Yes,Yes,Partial Query Match
+82,No Match,No Match,Yes,No,Partial Query Match
+83,No Match,Full Query Any Order Match,Yes,No,No Match
+84,No Match,Full Query Any Order Match,No,Yes,Partial Query Match
+85,No Match,Full Query Any Order Match,No,No,Full Any Order Match
+86,No Match,Full Query Any Order Match,No,No,Full Query Any Order Match
+87,No Match,Full Query Any Order Match,No,No,Partial Query Match
+88,No Match,Full Query Any Order Match,No,Yes,No Match
+89,No Match,No Match,No,No,Full Query In Order Match
+90,No Match,No Match,No,No,Full Any Order Match
+91,No Match,No Match,No,No,Full Query Any Order Match
+92,No Match,No Match,No,Yes,Partial Query Match
+93,No Match,No Match,No,No,Partial Query Match
+94,No Match,Full Query Any Order Match,No,No,No Match
+29,No Match,No Match,Yes,Yes,No Match
+10000,No Match,No Match,Yes,No,No Match
+10000,No Match,No Match,No,Yes,No Match
+10000,No Match,No Match,No,No,No Match

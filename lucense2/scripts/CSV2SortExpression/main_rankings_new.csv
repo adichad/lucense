@@ -1,0 +1,17 @@
+1,No,Full Query Any Order Match,Full Query Any Order Match,Yes,Yes
+2,No,Full Query Any Order Match,No Match,Yes,Yes
+3,No,Full Query Any Order Match,Full Query Any Order Match,No,Yes
+4,No,Full Query Any Order Match,No Match,No,Yes
+5,No,Full Query Any Order Match,Full Query Any Order Match,Yes,No
+6,No,Full Query Any Order Match,No Match,Yes,No
+7,No,Full Query Any Order Match,Full Query Any Order Match,No,No
+8,No,Full Query Any Order Match,No Match,No,No
+9,No,No Match,Full Query Any Order Match,Yes,Yes
+10,No,No Match,No Match,Yes,Yes
+11,No,No Match,Full Query Any Order Match,No,Yes
+12,No,No Match,No Match,No,Yes
+13,No,No Match,Full Query Any Order Match,Yes,No
+14,No,No Match,No Match,Yes,No
+15,No,No Match,Full Query Any Order Match,No,No
+16,No,No Match,No Match,No,No
+1,Yes,No Match,No Match,No,No

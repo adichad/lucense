@@ -1,0 +1,5 @@
+GenerateSortExpression.rb generates a search ranking expression based on the provided .csv defining ranks and a configuration file translating CSV attribute values to their corresponding expression conditions.
+
+command:-
+
+ruby GenerateSortExpression.rb ./sw_ordering_name_search_config.rb ./sw_ordering_name_search.csv > sw_ordering_name_search.exp

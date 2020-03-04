@@ -1,0 +1,2150 @@
+{
+  "indexWriters": {
+  	"swplaces": {
+  	  "dirType":"org.apache.lucene.store.MMapDirectory",
+      "lockFactory":"org.apache.lucene.store.NativeFSLockFactory",
+      "mergePolicy": "forceMergeDeletesAll",
+      "indexVersion":"LUCENE_36",
+      "analyzer":"smallworldAnalyzer",
+      "indexName": "places",
+      "openMode": "CREATE_OR_APPEND",
+      "memUsageEnv": "mem.places.writer",
+      "similarity": "default" 
+  	},
+  	"swsuggest": {
+  	  "dirType":"org.apache.lucene.store.MMapDirectory",
+      "lockFactory":"org.apache.lucene.store.NativeFSLockFactory",
+      "mergePolicy": "default",
+      "indexVersion":"LUCENE_36",
+      "analyzer":"suggestAnalyzer",
+      "indexName": "suggest",
+      "openMode": "CREATE_OR_APPEND",
+      "memUsageEnv": "mem.places.writer",
+      "similarity": "default" 
+  	}
+  },
+  
+  "mergePolicies": {
+    "default": {
+      "type": "com.cleartrip.sw.search.index.TieredMergePolicySource",
+      "params": {
+      }
+    },
+    "forceMergeDeletesAll": {
+      "type": "com.cleartrip.sw.search.index.TieredMergePolicySource",
+      "params": {
+        "forceMergeDeletesPctAllowed":0.0
+      }
+    }
+  },
+  
+  "similarities": {
+    "default": {
+      "type": "com.cleartrip.sw.search.similarity.SmallworldSimilaritySource",
+      "params": {
+      }
+    },
+    "lucene": {
+      "type": "com.cleartrip.sw.search.similarity.DefaultSimilaritySource",
+      "params": {
+      }
+    }
+  },
+  
+  "termDocsFactories": {
+    "default": {
+      "type":"org.apache.lucene.search.DefaultTermDocsFactory",
+      "params": {
+      }
+    },
+    "filterByPayload": {
+      "type":"org.apache.lucene.search.ConjunctivePayloadMaskingTermDocsFactory",
+      "params": {
+        "payloadOffset": 1,
+        "mask": 1
+      }
+    }
+  },
+  
+  "queryFactories": {
+    "default": {
+      "type": "com.cleartrip.sw.search.query.DefaultQueryFactory",
+      "termDocsFactory":"default",
+      "fieldTermDocsFactories": {
+      }
+    },
+    "custom": {
+      "type": "com.cleartrip.sw.search.query.CustomQueryFactory",
+      "termDocsFactory":"default",
+      "fieldTermDocsFactories": {
+        "geo_path_aliases": "filterByPayload"
+      }
+    }
+  },
+  
+  "queryParsers": {
+    "url": {
+      "type":"com.cleartrip.sw.search.query.processors.URLQueryParserFactory",
+      "analyzer":"smallworldUrlQueryAnalyzer",
+      "queryFactory": "custom",
+      "matchVersion":"LUCENE_36",
+      "params": {
+        "defaultField":"_id"
+      }
+    }, 
+    "strict": {
+      "type":"com.cleartrip.sw.search.query.processors.StrictNLPQueryParserFactory",
+      "analyzer":"smallworldQueryAnalyzer",
+      "queryFactory": "custom",
+      "matchVersion":"LUCENE_36",
+      "params": {
+        "defaultField":"_id"
+      }
+    }, 
+    "lucenescores": {
+      "type":"com.cleartrip.sw.search.query.processors.StrictNLPQueryParserFactory",
+      "analyzer":"smallworldQueryAnalyzer",
+      "queryFactory": "default",
+      "matchVersion":"LUCENE_36",
+      "params": {
+        "defaultField":"_id"
+      }
+    }, 
+    "suggest": {
+      "type":"com.cleartrip.sw.search.query.processors.SuggestQueryParserFactory",
+      "analyzer":"suggestAnalyzer",
+      "queryFactory": "default",
+      "matchVersion":"LUCENE_36",
+      "params": {
+        "defaultField":"_id"
+      }
+    }
+  },
+  
+  "faceters":{
+  	"placeType": {
+  	  "type":"com.cleartrip.sw.search.facets.SingleValuedFieldCountSortedFaceterFactory",
+  	  "params": {
+  	  	"field":"place_type_small_world"
+  	  }
+  	}, 
+  	"nameDups": {
+  	  "type":"com.cleartrip.sw.search.facets.DuplicatesFilterFaceterFactory",
+  	  "params": {
+  	  	"field":"name",
+  	  	"stringsToDuplicate":["starbucks","dominos pizza","domino's pizza", "pizza hut","us pizza","pizza corner","pizza stop","california pizza kitchen"]
+  	  }
+  	}, 
+  	
+  	"continent": {
+  	  "type":"com.cleartrip.sw.search.facets.SingleValuedFieldCountSortedFaceterFactory",
+  	  "params": {
+  	  	"field":"continent"
+  	  }
+  	},
+  	"isActive": {
+  	  "type":"com.cleartrip.sw.search.facets.SingleValuedFieldCountSortedFaceterFactory",
+  	  "params": {
+  	  	"field":"is_active"
+  	  }
+  	},
+  	"swPlaceType": {
+  	  "type":"com.cleartrip.sw.search.facets.SortingGroupingFaceterFactory",
+  	  "params": {
+  	    "field":"place_type_small_world",
+  	    "offset":0,
+  	    "limit":20
+  	  }
+  	},
+  	"swMap": {
+  	  "type":"com.cleartrip.sw.search.facets.GridFaceterFactory",
+  	  "params": {
+  	    "latField":"lat_ce_small_world",
+        "lngField":"long_ce_small_world",
+        "latRatios":[0.5, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+        "lngRatios":[0.5, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+        "zoomLimit":[1,   1,   1,   1,   1,   1,   1,   2,   2,   2],
+        "lngMin":-180.0,
+        "lngMax":180.0,
+        "latMin":-90.0,
+        "latMax":90.0
+  	  }
+  	},
+  	"fbLikeHistogram": {
+  	  "type":"com.cleartrip.sw.search.facets.HistogramFaceterFactory",
+  	  "params": {
+  	    "field":"fb_likes",
+  	    "fieldType":"INT",
+  	    "width": 100
+  	  }
+  	},
+  	"countryCode": {
+  	  "type":"com.cleartrip.sw.search.facets.SortingGroupingFaceterFactory",
+  	  "params": {
+  	    "field":"country_code",
+  	    "offset":0,
+  	    "limit":20
+  	  }
+  	}
+  },
+  "filters": {
+    "resultDedup": {
+      "type": "com.cleartrip.sw.search.filters.GeoPathDedupFilterFactory",
+      "params": {
+        "match":"name_as_id",
+        "contain":"geo_path_ids",
+        "retain":"_id"
+      }
+    }
+  },
+  
+  "scopes": {
+  },
+  
+  "expressions": {
+    "isfullgeo": {
+      "expression":"[bool]_isfullexact_geo_path_aliases_"
+    },
+    "poiRank": {
+      "expression":"[int]poi_rank"
+    },
+    "childCount": {
+      "expression":"discrete([int]child_count, 1, 0, 5000, 3000, 1000, 500, 300, 1)"
+    },
+    "weightedHotelCount": {
+      "expression":"[float]weighted_hotel_count"
+    },
+    "guideCount": {
+      "expression":"[int]guide_count"
+    },
+    "sourceCount": {
+      "expression":"[int]source_count"
+    },
+    "sourceRank": {
+      "expression":"[int]source_rank"
+    },
+    "destSourceRank": {
+      "expression":"[int]source_rank_dest"
+    },
+    "taRating": {
+      "expression":"[float]ta_rating"
+    },
+    "taTotalRatings": {
+      "expression":"[int]ta_total_ratings"
+    },
+    "starRating": {
+      "expression":"[float]star_rating"
+    },
+    "adminRank": {
+      "expression":"100000-[int]_boostminpos_gp_aliases_boosted_"
+    },
+    "scoreFilter": {
+      "expression":"[int]_score > 0"
+    },
+    "score": {
+      "expression":"[float]_score"
+    },
+    "lcsLenName": {
+      "expression":"[int]_lcslen_name_"
+    },
+    "numWordsName": {
+      "expression":"[int]_numwords_name_"
+    },
+    "fieldNormName": {
+      "expression":"[int]_fieldnorm_name_"
+    },
+    "childRankBucket": {
+      "expression":"if([int]child_rank <= 5, 0, 1)"
+    },
+    "hotelSignals1": {
+      "expression":"(10f-[float]star_rating)*(10f-[float]ta_rating)"
+    },
+    "hotelSignals2": {
+      "expression":"1000000-[int]ta_total_ratings"
+    },
+   "sanityRanker": {
+      "expression":"if(([int]_boostminpos_gp_aliases_boosted_>0),1 ,if(([bool]_isfullexact_geo_path_aliases_||[bool]_isfullexact_name@geo_path_aliases_||[bool]_isfullexact_aliases@geo_path_aliases_) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),1,5 ) ,if(([int]guide_word_count>150),3,7 ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),2,6 ) ,if(([int]guide_word_count>150),4,8 ) ) ) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),9,13 ) ,if(([int]guide_word_count>150),11,15 ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),10,14 ) ,if(([int]guide_word_count>150),12,16 ) ) ) ) )"
+   },
+   "sanityRankerNoAdmin": {
+      "expression":"if(([bool]_isfullexact_geo_path_aliases_||[bool]_isfullexact_name@geo_path_aliases_||[bool]_isfullexact_aliases@geo_path_aliases_) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),1,5 ) ,if(([int]guide_word_count>150),3,7 ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),2,6 ) ,if(([int]guide_word_count>150),4,8 ) ) ) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),9,13 ) ,if(([int]guide_word_count>150),11,15 ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150),10,14 ) ,if(([int]guide_word_count>150),12,16 ) ) ) )"
+   },
+   "urlComparator": {
+	"expression":"if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isexact_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),1,10000 )"
+    },
+    "nlpComparator": {
+      "expression":
+        "if(([int]_boostminpos_gp_aliases_boosted_>0),29 ,if(([bool]_isfullexact_name@aliases@geo_path_aliases_) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),1 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),9 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),11 ,if(([bool]_isall_name_||[bool]_isall_aliases_),13 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),15,29 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),43 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),44 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),45 ,if(([bool]_isall_name_||[bool]_isall_aliases_),46 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),47,31 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),5 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),17 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),19 ,if(([bool]_isall_name_||[bool]_isall_aliases_),21 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),23,32 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),48 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),49 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),50 ,if(([bool]_isall_name_||[bool]_isall_aliases_),51 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),52,60 ) ) ) ) ) ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),3 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),10 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),12 ,if(([bool]_isall_name_||[bool]_isall_aliases_),14 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),16,30 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),58 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),58 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),58 ,if(([bool]_isall_name_||[bool]_isall_aliases_),58 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),58,58 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),7 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),58 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),58 ,if(([bool]_isall_name_||[bool]_isall_aliases_),58 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),58,58 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),63 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),64 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),65 ,if(([bool]_isall_name_||[bool]_isall_aliases_),66 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),58,72 ) ) ) ) ) ) ) ) ,if(([int]_numwords_geo_path_aliases_>0) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_),70,71 ) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),2 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),25 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),35 ,if(([bool]_isall_name_||[bool]_isall_aliases_),37 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),73,77 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),53 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),54 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),74 ,if(([bool]_isall_name_||[bool]_isall_aliases_),75 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),76,83 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),6 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),27 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),39 ,if(([bool]_isall_name_||[bool]_isall_aliases_),41 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),84,88 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),55 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),56 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),85 ,if(([bool]_isall_name_||[bool]_isall_aliases_),86 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),87,94 ) ) ) ) ) ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),4 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),26 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),36 ,if(([bool]_isall_name_||[bool]_isall_aliases_),38 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),81,29 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),68 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),78 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),79 ,if(([bool]_isall_name_||[bool]_isall_aliases_),80 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),82,10000 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),8 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),58 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),40 ,if(([bool]_isall_name_||[bool]_isall_aliases_),42 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),92,10000 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),69 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),89 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),90 ,if(([bool]_isall_name_||[bool]_isall_aliases_),91 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),93,10000 ) ) ) ) ) ) ) ) ) ) )" 
+    },
+    "nlpComparatorNoAdmin": {
+      "expression":
+        "if(([bool]_isfullexact_name@aliases@geo_path_aliases_) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),1 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),9 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),11 ,if(([bool]_isall_name_||[bool]_isall_aliases_),13 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),15,29 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),43 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),44 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),45 ,if(([bool]_isall_name_||[bool]_isall_aliases_),46 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),47,31 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),5 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),17 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),19 ,if(([bool]_isall_name_||[bool]_isall_aliases_),21 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),23,32 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),48 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),49 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),50 ,if(([bool]_isall_name_||[bool]_isall_aliases_),51 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),52,60 ) ) ) ) ) ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),3 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),10 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),12 ,if(([bool]_isall_name_||[bool]_isall_aliases_),14 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),16,30 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),58 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),58 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),58 ,if(([bool]_isall_name_||[bool]_isall_aliases_),58 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),58,58 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),7 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),58 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),58 ,if(([bool]_isall_name_||[bool]_isall_aliases_),58 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),58,58 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),63 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),64 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),65 ,if(([bool]_isall_name_||[bool]_isall_aliases_),66 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),58,72 ) ) ) ) ) ) ) ) ,if(([int]_numwords_geo_path_aliases_>0) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_),70,71 ) ,if(([bool]_isfullexact_place_type_||[bool]_isfullexact_themes_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),2 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),25 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),35 ,if(([bool]_isall_name_||[bool]_isall_aliases_),37 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),73,77 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),53 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),54 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),74 ,if(([bool]_isall_name_||[bool]_isall_aliases_),75 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),76,83 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),6 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),27 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),39 ,if(([bool]_isall_name_||[bool]_isall_aliases_),41 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),84,88 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),55 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),56 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),85 ,if(([bool]_isall_name_||[bool]_isall_aliases_),86 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),87,94 ) ) ) ) ) ) ) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),4 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),26 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),36 ,if(([bool]_isall_name_||[bool]_isall_aliases_),38 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),81,29 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),68 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),78 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),79 ,if(([bool]_isall_name_||[bool]_isall_aliases_),80 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),82,10000 ) ) ) ) ) ) ,if(([int]guide_word_count>150) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),8 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),58 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),40 ,if(([bool]_isall_name_||[bool]_isall_aliases_),42 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),92,10000 ) ) ) ) ) ,if(([bool]_isexact_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isfullexact_aliases_),69 ,if(([bool]_isexact_name_||[bool]_isexact_aliases_),89 ,if(([bool]_isall_name_&&[int]_fieldnorm_name_==[int]_numwords_name_)||([bool]_isall_aliases_&&[int]_fieldnorm_aliases_==[int]_numwords_aliases_),90 ,if(([bool]_isall_name_||[bool]_isall_aliases_),91 ,if(([int]_numwords_name_>0||[int]_numwords_aliases_>0),93,10000 ) ) ) ) ) ) ) ) ) )" 
+    },
+    "nlpNameComparator": {
+      "expression":
+        "if(([bool]_isfullexact_name_||[bool]_isfullexact_aliases_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>151),1,3 ) ,if(([int]guide_word_count>151),2,4 ) ) ,if(([bool]_isfullexact_name@geo_path_aliases_||[bool]_isfullexact_aliases@geo_path_aliases_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>151),5,7 ) ,if(([int]guide_word_count>151),6,8 ) ),10 ) )"
+    },
+    "fullNameGeoMatch": {
+      "expression": 
+        "([bool]_isfullexact_name@geo_path_aliases_)"      
+    },
+    "isExactName": {
+      "expression": 
+        "[bool]_isexact_aliases_"
+    },
+    "nameRankFilter": {
+      "expression":
+      	"if(([bool]_isfullexact_name_||[bool]_isfullexact_aliases_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>151),1,3 ) ,if(([int]guide_word_count>151),2,4 ) ) ,if(([bool]_isfullexact_name@geo_path_aliases_||[bool]_isfullexact_aliases@geo_path_aliases_) ,if(([int]poi_rank>0 || [int]child_count>5000) ,if(([int]guide_word_count>151),5,7 ) ,if(([int]guide_word_count>151),6,8 ) ),10 ) )<10"
+    },
+    "guideRank": {
+      "expression":
+        "discrete([int]guide_word_count, 1, 0, 7500, 5000, 3000, 2250, 1750, 1400, 1200, 1000, 850, 730, 650, 550, 500, 450, 400, 350, 300, 260, 230, 200, 180, 150)"
+    },
+    "sightCountRank": {
+      "expression": 
+        "discrete([int]sights_count, 1, 0, 900, 600, 300, 100, 50, 20, 10, 5, 2, 1)"
+    },
+    "fbCountRank": {
+      "expression": 
+        "discrete([int]fb_count, 1, 0, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 1)"
+    },
+    "fsCountRank": {
+      "expression": 
+        "discrete([int]fs_count, 1, 0, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 1)"
+    },
+    "hotelCount": {
+      "expression":
+        "[int]hotel_count_3star"
+    },
+    "flightCount": {
+      "expression":
+        "[int]flight_count"
+    },
+    "sightCount": {
+      "expression":
+        "[int]sights_count"
+    },
+    "boostminpos": {
+      "expression":
+        "[int]_boostminpos_gp_aliases_boosted_"
+    },
+    "hotelCountRank": {
+      "expression":
+        "discrete([int]hotel_count_3star, 1, 0, 100, 50, 20, 10, 5, 2, 1)"
+    },
+    "flightCountRank": {
+      "expression":
+        "discrete([int]flight_count, 1, 0, 200000, 100000, 50000, 20000, 10000, 5000, 3500, 2000, 1500, 1000, 500, 350, 200, 100, 50, 35, 20, 10, 5, 3, 1)"
+    },
+    "guideWordCount": {
+      "expression":
+        "[int]guide_word_count"
+    },
+    "isFullExactName": {
+      "expression":
+        "[bool]_isfullexact_name_"
+    },
+    "isFullExactAliases": {
+      "expression":
+        "[bool]_isfullexact_aliases_"
+    },
+    "isFullExactNameOrAliases": {
+      "expression":
+        "[bool]_isfullexact_name_||[bool]_isfullexact_aliases_"
+    },
+    "isFullExactNameAndAliases": {
+      "expression":
+        "[bool]_isfullexact_name_&&[bool]_isfullexact_aliases_"
+    },
+    "zom_rating": {
+      "expression":
+        "[float]zom_rating"
+    },
+    "total_photo_count": {
+      "expression":
+        "if([int]total_photo_count>0, 0, 1)"
+    },
+    "fbLikes": {
+      "expression":
+        "[int]fb_likes"
+    },
+    "fbCount": {
+      "expression":
+        "[int]fb_count"
+    },
+    "fsCount": {
+      "expression":
+        "[int]fs_count"
+    },
+    "sightCount": {
+      "expression":
+      	"[int]sights_count"
+    },
+    "entertainmentCount": {
+      "expression":
+        "[int]entertainment_count"
+    },
+    "eatCount": {
+      "expression":
+        "[int]eat_count"
+    },
+    "stayCount": {
+      "expression":
+        "[int]stay_count"
+    },
+    "shoppingCount": {
+      "expression":
+        "[int]shopping_count"
+    },
+    "activitiesCount": {
+      "expression":
+        "[int]activities_count"
+    },
+    "night_lifeCount": {
+      "expression":
+        "[int]night_life_count"
+    },
+    "townCount": {
+      "expression":
+        "[int]town_count"
+    },
+    "is_top_pick_ord": {
+      "expression": 
+        "if(\"true\"==[string]is_top_pick, 0, 1)"
+    },
+    "taRank": {
+      "expression": 
+        "[int]ta_rank"
+    },
+    "populationRank": {
+      "expression":
+        "if([int]population_rank>0, [int]population_rank, 21)"
+    },
+    "hotelCountRankNorm": {
+      "expression":
+        "discrete(1000*[int]hotel_count_3star/if([int]population_rank>0, [int]population_rank, 21), 1, 0, 150000, 100000, 80000, 50000, 40000, 30000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 1, 0)"
+    },
+    "flightCountRankNorm": {
+      "expression":
+        "discrete([int]flight_count/if([int]population_rank>0, [int]population_rank, 21), 1, 0, 200000, 100000, 50000, 20000, 10000, 5000, 3500, 2000, 1500, 1000, 500, 350, 200, 100, 50, 35, 20, 10, 5, 3, 1)"
+    },
+    "sightCountRankNorm": {
+      "expression": 
+        "discrete([int]sights_count/if([int]population_rank>0, [int]population_rank, 21), 1, 0, 900, 600, 300, 100, 50, 20, 10, 5, 2, 1)"
+    }
+    
+  },
+  
+  "expressionFilters": {
+    "scoreFilter": {
+      "expression": "scoreFilter",
+      "exclude": false
+    },
+    "nameRankFilter": {
+      "expression": "nameRankFilter",
+      "exclude": false
+    },
+    "isFullExactName": {
+      "expression": "isFullExactName",
+      "exclude": false
+    }, 
+    "isFullExactAliases": {
+      "expression": "isFullExactAliases",
+      "exclude": false
+    }, 
+    "isFullExactNameOrAliases": {
+      "expression": "isFullExactNameOrAliases",
+      "exclude": false
+    }, 
+    "isFullExactNameAndAliases": {
+      "expression": "isFullExactNameAndAliases",
+      "exclude": false
+    }
+  },
+  
+  "sorters": {
+    "frequency": {
+      "type": "FIELD",
+      "params": {
+      	"field":"frequency",
+      	"type":"INT",
+      	"descending":true
+      }
+    },
+    "sourceCount": {
+      "type": "FIELD",
+      "params": {
+      	"field":"source_count",
+      	"type":"INT",
+      	"descending":true
+      }
+    },
+  	"score": {
+  	  "type": "SCORE",
+  	  "params": {
+  	  }
+  	}, 
+  	"childCount": {
+  	  "type": "EXPRESSION",
+  	  "params": {
+  	    "expression":"childCount",
+  	    "descending":false
+  	  }
+  	},
+  	"childRank": {
+  	  "type": "FIELD",
+  	  "params": {
+  	    "field":"child_rank",
+  	    "type":"INT",
+  	    "descending":false
+  	  }
+  	},
+  	"adminRank": {
+  	  "type": "EXPRESSION",
+  	  "params": {
+  	    "expression":"adminRank",
+  	    "descending":false
+  	  }
+  	},
+  	"guideCount": {
+  	  "type": "FIELD",
+  	  "params": {
+  	    "field":"guide_count",
+  	    "type":"INT",
+  	    "descending":true
+  	  }
+  	},
+  	"solidPOICount": {
+  	  "type": "FIELD",
+  	  "params": {
+  	    "field":"solid_poi_count",
+  	    "type":"INT",
+  	    "descending":true
+  	  }
+  	},
+  	"urlSorter": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+  	  	"expression":"urlComparator",
+  	  	"descending":false
+  	  }
+  	},
+  	"guideRank": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+        "expression":"guideRank",
+        "descending":false
+      }
+  	},
+  	"nlpSorter": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+  	  	"expression":"nlpComparator",
+  	  	"descending":false
+  	  }
+  	},
+  	"nlpSorterNoAdmin": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+  	  	"expression":"nlpComparatorNoAdmin",
+  	  	"descending":false
+  	  }
+  	},
+  	"fullNameGeoMatch": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+  	  	"expression":"fullNameGeoMatch",
+  	  	"descending":false
+  	  }
+  	},
+  	"nlpNameSorter": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+  	  	"expression":"nlpNameComparator",
+  	  	"descending":false
+  	  }
+  	},
+	"childRankBucketSorter": {
+  	  "type":"EXPRESSION",
+  	  "params": {
+  	  	"expression":"childRankBucket",
+  	  	"descending":false
+  	  }
+	},
+    "sourceRank": {
+      "type": "FIELD",
+      "params": {
+        "field":"source_rank",
+        "type":"INT",
+        "descending":false
+      }
+	},
+	"destSourceRank": {
+      "type": "FIELD",
+      "params": {
+        "field":"source_rank_dest",
+        "type":"INT",
+        "descending":false
+      }
+	},
+	"poiRank": {
+      "type": "FIELD",
+      "params": {
+        "field":"poi_rank",
+        "type":"INT",
+        "descending":true
+      }
+	},
+	"taRank": {
+      "type": "FIELD",
+      "params": {
+        "field":"ta_rank",
+        "type":"INT",
+        "descending":false
+      }
+	},
+	"flightCountRank": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"flightCountRank",
+        "descending":false
+      }
+	},
+    "hotelCountRank": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"hotelCountRank",
+        "descending":false
+      }
+	},
+    "sightCountRank": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"sightCountRank",
+        "descending":false
+      }
+	},
+	"flightCountRankNorm": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"flightCountRankNorm",
+        "descending":false
+      }
+	},
+    "hotelCountRankNorm": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"hotelCountRankNorm",
+        "descending":false
+      }
+	},
+    "sightCountRankNorm": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"sightCountRankNorm",
+        "descending":false
+      }
+	},
+    "fbCountRank": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"fbCountRank",
+        "descending":false
+      }
+	},
+    "fsCountRank": {
+	  "type":"EXPRESSION",
+      "params": {
+        "expression":"fsCountRank",
+        "descending":false
+      }
+	},
+    "fsCount": {
+	  "type":"FIELD",
+      "params": {
+        "field":"fs_count",
+        "type":"INT",
+        "descending":true
+      }
+	},
+    "hotelSignals1": {
+      "type":"EXPRESSION",
+      "params": {
+        "expression":"hotelSignals1",
+        "descending":false
+      }
+    },
+    "hotelSignals2": {
+      "type":"EXPRESSION",
+      "params": {
+        "expression":"hotelSignals2",
+        "descending":false
+      }
+    },
+    "total_photo_count": {
+      "type":"EXPRESSION",
+      "params": {
+        "expression":"total_photo_count",
+        "descending":false
+      }
+    },
+    "is_top_pick": {
+      "type":"EXPRESSION",
+      "params": {
+        "expression":"is_top_pick_ord",
+        "descending":false
+      }
+    },
+  	"zomRating": {
+  	  "type": "FIELD",
+  	  "params": {
+  	    "field":"zom_rating",
+  	    "type":"FLOAT",
+  	    "descending":true
+  	  }
+  	},
+  	"fbLikes": {
+  	  "type": "FIELD",
+  	  "params": {
+  	    "field":"fb_likes",
+  	    "type":"INT",
+  	    "descending":true
+  	  }
+  	},
+    "sanityRanker": {
+      "type": "EXPRESSION",
+      "params": {
+        "expression":"sanityRanker",
+        "descending":false
+      }
+    },
+    "sanityRankerNoAdmin": {
+      "type": "EXPRESSION",
+      "params": {
+        "expression":"sanityRankerNoAdmin",
+        "descending":false
+      }
+    },
+    "eat_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"eat_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "child_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"child_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "sights_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"sights_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "town_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"town_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "stay_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"stay_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "night_life_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"night_life_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "shopping_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"shopping_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "guide_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"guide_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "guide_word_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"guide_word_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    },
+    "total_photo_count": {
+      "type": "FIELD",
+      "params": {
+        "field":"total_photo_count",
+  	    "type":"INT",
+  	    "descending":true
+      }
+    }
+  },
+  
+  "queryProcessors": {
+    "url": {
+      "type": "com.cleartrip.sw.search.query.processors.URLQueryProcessor",
+      "defaultParser": "url",
+      "parsers": ["url"],
+      "sorterChains": {
+      	"main": ["urlSorter", "childRankBucketSorter", "sourceRank", "solidPOICount", "childCount"],
+      	"nlp": ["nlpSorter", "adminRank", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "flightCountRank", "sightCountRank", "hotelCountRank", "destSourceRank", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"desthl": ["nlpSorter", "adminRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "flightCountRank", "sightCountRank", "hotelCountRank", "destSourceRank", "guideCount", "sourceCount", "childRank", "solidPOICount"]
+      },
+      "defaultSorterChain":"main",
+      "scoreFields": ["name", "aliases", "geo_path_aliases", "place_type", "themes", "gp_aliases_boosted"],
+      "faceters": {
+        "swPlaceType":"swPlaceType"
+      },
+      "defaultFieldSelector": "default",
+      "fieldSelectors": ["default", "debug", "srp", "dest", "rankdbg"],
+      "expressionFilterChains": {
+        "default": [],
+      	"strictNameAliases": ["isFullExactNameOrAliases"],
+      	"strictName": ["isFullExactName"],
+      	"strictAliases": ["isFullExactAliases"]
+      },
+      "params": {
+      }
+    },
+    "strict": {
+      "type": "com.cleartrip.sw.search.query.processors.StrictNLPQueryProcessor",
+      "defaultParser": "strict",
+      "parsers": ["strict"],
+      "sorterChains": {
+      	"main": ["sanityRanker", "adminRank", "is_top_pick", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"photosfirst": ["total_photo_count", "sanityRanker", "adminRank", "is_top_pick", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"fcustom": ["sanityRanker", "adminRank", "poiRank", "total_photo_count", "fbCountRank", "fsCountRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "flightCountRank", "sightCountRank", "hotelCountRank", "destSourceRank", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"gcustom": ["sanityRanker", "adminRank", "poiRank", "guideRank", "fbCountRank", "fsCountRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "flightCountRank", "sightCountRank", "hotelCountRank", "destSourceRank", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"noadmin": ["sanityRankerNoAdmin", "poiRank", "fbLikes", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"name": ["nlpNameSorter", "is_top_pick", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"desthl": ["sanityRanker", "adminRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"resto": ["nlpSorter", "adminRank", "zomRating"],
+      	"hpmain": ["is_top_pick", "sanityRanker", "adminRank", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"hpdesthl": ["is_top_pick", "sanityRanker", "adminRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRank", "sightCountRank", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"norm": ["sanityRanker", "adminRank", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRankNorm", "sightCountRankNorm", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"hpnorm": ["is_top_pick", "sanityRanker", "adminRank", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRankNorm", "sightCountRankNorm", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"normnoadmin": ["sanityRankerNoAdmin", "poiRank", "guideRank", "childCount", "hotelSignals1", "hotelSignals2", "sourceRank", "taRank", "zomRating", "hotelCountRankNorm", "flightCountRankNorm", "sightCountRankNorm", "destSourceRank", "fbLikes", "fsCount", "guideCount", "sourceCount", "childRank", "solidPOICount"],
+      	"eat_count": ["eat_count"],
+      	"child_count": ["child_count"],
+      	"sights_count": ["sights_count"],
+      	"town_count": ["town_count"],
+      	"stay_count": ["stay_count"],
+      	"night_life_count": ["night_life_count"],
+      	"shopping_count": ["shopping_count"],
+      	"guide_count": ["guide_count"],
+      	"guide_word_count": ["guide_word_count"],
+      	"total_photo_count": ["total_photo_count"]
+      },
+      "defaultSorterChain":"main",
+      "scoreFields": ["name", "aliases", "geo_path_aliases", "place_type", "themes",  "gp_aliases_boosted"],
+      "faceters": {
+        "placeType":"placeType", 
+        "continent":"continent",
+        "isActive":"isActive",
+        "swPlaceType":"swPlaceType",
+        "nameDups":"nameDups",
+        "swMap":"swMap"
+      },
+      "expressionFilterChains": {
+      	"default": [],
+      	"name": ["nameRankFilter"],
+      	"strictNameAliases": ["isFullExactNameOrAliases"],
+      	"strictName": ["isFullExactName"],
+      	"strictAliases": ["isFullExactAliases"]
+      },
+      "filters": ["resultDedup"],
+      "defaultFieldSelector": "default",
+      "fieldSelectors": ["default", "debug", "rankdbg", "srp", "dest", "noexp", "spell", "rtr", "air", "stats", "iospass"],
+      "params": {
+        "posTagModel":"en-pos-maxent.bin",
+        "searchTimeoutEnv":"timeout.search.nlp"
+      }
+    },
+    "lucenescores": {
+      "type": "com.cleartrip.sw.search.query.processors.StrictNLPQueryProcessor",
+      "defaultParser": "lucenescores",
+      "parsers": ["lucenescores"],
+      "sorterChains": {
+      	"main": ["score"],
+      	"name": ["score"]
+      },
+      "defaultSorterChain":"main",
+      "scoreFields": ["name", "aliases", "geo_path_aliases", "place_type", "themes",  "gp_aliases_boosted", "guide_text"],
+      "faceters": {
+        
+      },
+      "expressionFilterChains": {
+      	"default": [],
+      	"name": []
+      },
+      "filters": ["resultDedup"],
+      "defaultFieldSelector": "lucenescoresdebug",
+      "fieldSelectors": ["lucenescoresdebug"],
+      "params": {
+        "posTagModel":"en-pos-maxent.bin",
+        "searchTimeoutEnv":"timeout.search.nlp"
+      }
+    },
+    "suggest": {
+      "type": "com.cleartrip.sw.search.query.processors.SuggestQueryProcessor",
+      "defaultParser": "suggest",
+      "parsers": ["suggest"],
+      "sorterChains": {
+      	"main": ["score"],
+      	"name": ["score"]
+      },
+      "defaultSorterChain":"main",
+      "scoreFields": [],
+      "faceters": {
+        
+      },
+      "expressionFilterChains": {
+      	"default": [],
+      	"name": []
+      },
+      "filters": [],
+      "defaultFieldSelector": "suggest",
+      "fieldSelectors": ["suggest"],
+      "params": {
+        "searchTimeoutEnv":"timeout.search.nlp"
+      }
+    }
+  },
+  "analyticsProcessors": {
+    "stats": {
+      "type":"com.cleartrip.sw.analytics.StatisticsAnalyzer"
+    }
+  },
+  "executerServiceFactories": {
+    "swplaces": {
+      "type": "com.cleartrip.sw.search.executors.FixedThreadPoolFactory",
+      "params": {
+        "maxThreadsPerSearch":16,
+        "threadPrefix":"sw-search-swplaces"
+      }
+    },
+    "swsuggest": {
+      "type": "com.cleartrip.sw.search.executors.FixedThreadPoolFactory",
+      "params": {
+        "maxThreadsPerSearch":16,
+        "threadPrefix":"sw-search-swsuggest"
+      }
+    }
+  },
+  "searcherWarmingStrategies": {
+    "swplaces": {
+      "schema": "swplaces",
+      "fieldCacheWarmables":["lat_ce_small_world", "long_ce_small_world"]
+    },
+    "swsuggest": {
+      "schema": "swsuggest",
+      "fieldCacheWarmables":[]
+    }
+  },
+  "lookupFactories": {
+    "default": {
+    	"type" : "com.cleartrip.sw.suggest.WFSTCompletionLookupFactory",
+    	"pathEnv" : "path.lookup"
+    	}
+  },
+  "searcherFactories": {
+    "swplaces": {
+      "searchSimilarity":"lucene",
+      "searcherWarmingStrategy": "swplaces",
+      "executorServiceFactory":"swplaces",
+      "lookupFactories": {
+      }
+    },
+    "swsuggest": {
+      "searchSimilarity":"lucene",
+      "searcherWarmingStrategy": "swsuggest",
+      "executorServiceFactory":"swsuggest",
+      "lookupFactories": {
+        "name_whole":"default",
+        "place_types_whole":"default",
+        "aliases_whole":"default",
+        "operator":"default",
+        "place_type_queries":"default",
+        "log_queries":"default"
+      }
+    }
+  },
+  "suggestCollectors": {
+    "wfstcollector": {
+      "type":"com.cleartrip.sw.suggest.FullWFSTCollector",
+      "sorterChain": ["frequency"],
+      "fields": ["name_whole", "aliases_whole", "place_type_queries", "place_types_whole"],
+      "prePopulatedFields": ["log_queries"],
+      "params": {
+        "operatorField": "operator",
+        "searchTermLimit":3000,
+        "operators": {
+          "in": {
+            "match":["in", "within", "inside"],
+            "lhs": ["place_types_whole", "name_whole", "aliases_whole"],
+            "rhs": ["name_whole", "aliases_whole"]
+          },
+          "near": {
+            "match":["near", "nearby"],
+            "lhs": ["place_types_whole", "name_whole", "aliases_whole"],
+            "rhs": ["name_whole", "aliases_whole"]
+          }
+        }
+      } 
+      
+    }
+  },
+  "suggestProcessors": {
+  	"suggest": {
+  	  "type":"com.cleartrip.sw.suggest.SuggestionProcessor",
+  	  "collector":"wfstcollector"
+  	}
+    
+  },
+  
+  "dataManagers": {
+    "swplaces": {
+      "indexWriter":"swplaces",
+      "schema":"swplaces",
+      "searcherFactory":"swplaces",
+      "queryProcessors": {
+        "default":"strict",
+        "url":"url",
+        "strict":"strict",
+        "lucenescores":"lucenescores"
+      },
+      "analyticsProcessors": {
+        "default":"stats",
+        "stats":"stats"
+      },
+      "suggestProcessors": {
+      },
+      "params": {
+        "sessionTimeoutSec":600,
+        "sessionPurgeIntervalMS":6000,
+        "maxStaleSec":6,
+        "minStaleSec":1,
+        "refreshWaitTime":50,
+        "refreshWaitTimeUnit":"MILLISECONDS"
+      }
+    },
+    "swsuggest": {
+      "indexWriter":"swsuggest",
+      "schema":"swsuggest",
+      "searcherFactory":"swsuggest",
+      "queryProcessors": {
+        "default":"suggest",
+        "suggest":"suggest"
+      },
+      "suggestProcessors": {
+        "default":"suggest",
+        "suggest":"suggest"
+      },
+      "analyticsProcessors": {
+      },
+      "params": {
+        "sessionTimeoutSec":600,
+        "sessionPurgeIntervalMS":6000,
+        "maxStaleSec":60,
+        "minStaleSec":20,
+        "refreshWaitTime":50,
+        "refreshWaitTimeUnit":"MILLISECONDS"
+      }
+    }
+  },
+  
+  "charFilters": {
+    "striphtml": {
+      "type":"com.cleartrip.sw.search.analysis.charfilters.HTMLStripCharFilterSource",
+      "params": {
+      }
+    }
+  },
+  
+  "tokenizers": {
+    "whitespace": {
+      "type":"com.cleartrip.sw.search.analysis.tokenizers.WhitespaceTokenizerSource",
+      "params": {
+        "matchVersion":"LUCENE_36"
+      }
+    },
+    "standard": {
+      "type":"com.cleartrip.sw.search.analysis.tokenizers.StandardTokenizerSource",
+      "params": {
+        "matchVersion":"LUCENE_36"
+      }
+    },
+    "keyword": {
+      "type":"com.cleartrip.sw.search.analysis.tokenizers.KeywordTokenizerSource",
+      "params": {
+        "matchVersion":"LUCENE_36"
+      }
+    }
+  },
+  
+  "tokenFilters": {
+    "lowercase": {
+      "type":"com.cleartrip.sw.search.analysis.filters.LowerCaseFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36"
+      }
+    },
+    "stopwords": {
+      "type":"com.cleartrip.sw.search.analysis.filters.StopFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36",
+        "stopwordFile":"stopwords.txt"
+      }
+    },
+    "guide-stopwords": {
+      "type":"com.cleartrip.sw.search.analysis.filters.StopFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36",
+        "stopwordFile":"guide-stopwords.txt"
+      }
+    },
+    "standard": {
+      "type":"com.cleartrip.sw.search.analysis.filters.StandardFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36"
+      }
+    },
+    "pluralstem": {
+      "type":"com.cleartrip.sw.search.analysis.filters.ControlledPluralStemFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36",
+        "minLen":4,
+        "replace":true
+      }
+    },
+    "augpluralstem": {
+      "type":"com.cleartrip.sw.search.analysis.filters.ControlledPluralStemFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36",
+        "minLen":4,
+        "replace":false
+      }
+    },
+    "participlestem": {
+      "type":"com.cleartrip.sw.search.analysis.filters.ControlledParticipleStemFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36",
+        "minLen":5,
+        "replace":true
+      }
+    },
+    "augparticiplestem": {
+      "type":"com.cleartrip.sw.search.analysis.filters.ControlledParticipleStemFilterSource",
+      "params": {
+        "matchVersion":"LUCENE_36",
+        "minLen":5,
+        "replace":false
+      }
+    },
+    "termposlen": {
+      "type":"com.cleartrip.sw.search.analysis.filters.TermPositionLengthPayloadFilterSource",
+      "params": {
+        "payloadOffset":0,
+        "payloadLen":1,
+        "termOffset":0
+      }
+    },
+    "flagtermposlen": {
+      "type":"com.cleartrip.sw.search.analysis.filters.TermPositionLengthPayloadFilterSource",
+      "params": {
+        "payloadOffset":0,
+        "payloadLen":2,
+        "termOffset":1
+      }
+    },
+    "phrasebooster": {
+      "type":"com.cleartrip.sw.search.analysis.filters.ConcatAndPayloadFilterSource",
+      "params": {
+        "payloadOffset":1,
+        "payloadLen":1
+      }
+    },
+    "phraser": {
+      "type":"com.cleartrip.sw.search.analysis.filters.PrefixShingleFilterSource",
+      "params": {
+        "maxShingleSize":4
+      }
+    },
+    "boolpayload": {
+      "type":"com.cleartrip.sw.search.analysis.filters.SingleBytePrefixPayloadFoldingFilterSource",
+      "params": {
+        "payloadOffset":1,
+        "payloadLen":2
+      }
+    }
+  },
+  
+  "analyzers": {
+    "smallworldAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "stopwords"],
+      "positionIncrementGap":100,
+      "offsetGap":100,
+      "fieldAnalyzers": {
+      	"name_as_id": "keywordLCAnalyzer",
+      	"place_type": "augplustemAnalyzer",
+        "themes": "augplustemAnalyzer",
+        "name": "augplustemAnalyzer",
+        "aliases": "augplustemAnalyzer",
+        "geo_path_aliases": "flagaugplustemAnalyzer",
+        "gp_aliases_boosted": "phraseboostedAnalyzer",
+        "guide_text": "guidesAnalyzer" 
+      }
+    },
+    "plustemAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "pluralstem", "participlestem"],
+      "positionIncrementGap":100,
+      "offsetGap":100
+    },
+    "guidesAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "pluralstem", "participlestem", "guide-stopwords"],
+      "positionIncrementGap":100,
+      "offsetGap":100
+    },
+    "augplustemAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "augpluralstem", "augparticiplestem", "termposlen"],
+      "positionIncrementGap":100,
+      "offsetGap":100
+    },
+    "flagaugplustemAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "augpluralstem", "augparticiplestem", "flagtermposlen", "boolpayload"],
+      "positionIncrementGap":100,
+      "offsetGap":100
+    },
+    "phraseboostedAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "pluralstem", "participlestem", "phrasebooster"],
+      "positionIncrementGap":100,
+      "offsetGap":100
+    },
+    "phrasedAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "pluralstem", "participlestem", "phraser"],
+      "positionIncrementGap":100,
+      "offsetGap":100
+    },
+    "keywordAnalyzer": {
+      "tokenizer":"keyword",
+      "tokenFilters":[],
+      "positionIncrementGap":1,
+      "offsetGap":1
+    },
+    "keywordLCAnalyzer": {
+      "tokenizer":"keyword",
+      "tokenFilters":["lowercase"],
+      "positionIncrementGap":1,
+      "offsetGap":1
+    },
+    "smallworldQueryAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "stopwords"],
+      "positionIncrementGap":100,
+      "offsetGap":100,
+      "fieldAnalyzers": {
+        "_id": "keywordAnalyzer",
+        "geo_path_ids":"keywordAnalyzer",
+        "name_as_id":"keywordLCAnalyzer",
+        "place_type": "plustemAnalyzer",
+        "themes": "plustemAnalyzer",
+        "name": "plustemAnalyzer",
+        "aliases": "plustemAnalyzer",
+        "geo_path_aliases": "plustemAnalyzer",
+        "airport_code":"keywordAnalyzer",
+        "country_code":"keywordAnalyzer",
+        "gp_aliases_boosted":"phrasedAnalyzer",
+        "place_type_small_world":"keywordAnalyzer",
+        "guide_text": "guidesAnalyzer" 
+      }
+    },
+    "suggestAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase"],
+      "positionIncrementGap":100,
+      "offsetGap":100,
+      "fieldAnalyzers": {
+        "_id": "keywordAnalyzer",
+        "name_whole": "keywordLCAnalyzer",
+        "aliases_whole": "keywordLCAnalyzer",
+        "place_types_whole": "keywordLCAnalyzer",
+        "themes_whole": "keywordLCAnalyzer",
+        "log_queries": "keywordLCAnalyzer",
+        "place_type_queries": "keywordLCAnalyzer"
+      }
+    },
+    "smallworldUrlQueryAnalyzer": {
+      "tokenizer":"standard",
+      "tokenFilters":["standard", "lowercase", "stopwords"],
+      "positionIncrementGap":100,
+      "offsetGap":100,
+      "fieldAnalyzers": {
+        "_id": "keywordAnalyzer",
+        "geo_path_ids":"keywordAnalyzer",
+        "name_as_id":"keywordLCAnalyzer",
+        "place_type": "plustemAnalyzer",
+        "airport_code":"keywordAnalyzer",
+        "country_code":"keywordAnalyzer",
+        "place_type_small_world":"keywordAnalyzer"
+      }
+    }
+  },
+  
+  "fieldTemplates": {
+    "idField": {
+      "type":"string",
+      "indexed":"NOT_ANALYZED_NO_NORMS",
+      "stored":"YES",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_ONLY",
+      "cardinality":"one"
+    },
+    "stoIdField": {
+      "type":"string",
+      "indexed":"NO",
+      "stored":"YES",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_ONLY",
+      "cardinality":"one"
+    },
+    "stoIdArray": {
+      "type":"string",
+      "indexed":"NO",
+      "stored":"YES",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_ONLY",
+      "cardinality":"many"
+    },
+    "idArray": {
+      "type":"string",
+      "indexed":"NOT_ANALYZED_NO_NORMS",
+      "stored":"YES",
+      "termVector":"WITH_POSITIONS",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"many"
+    },
+    "text": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"NO",
+      "termVector":"WITH_POSITIONS_OFFSETS",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"one"
+    },
+    "textWithTermVectors": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"YES",
+      "termVector":"WITH_POSITIONS_OFFSETS",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"one"
+    },
+    "storedText": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"YES",
+      "termVector":"WITH_POSITIONS_OFFSETS",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"one"
+    },
+    "storedNormText": {
+      "type":"string",
+      "indexed":"ANALYZED",
+      "stored":"YES",
+      "termVector":"WITH_POSITIONS_OFFSETS",
+      "internName":true,
+      "defaultBoost":1.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"one"
+    },
+    "keyword": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"YES",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_ONLY",
+      "cardinality":"one"
+    },
+    "keywordNoStore": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"NO",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_ONLY",
+      "cardinality":"one"
+    },
+    "textArray": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"NO",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"many"
+    },
+    "normTextArray": {
+      "type":"string",
+      "indexed":"ANALYZED",
+      "stored":"NO",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":1.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"many"
+    },
+    "storedTextArray": {
+      "type":"string",
+      "indexed":"ANALYZED_NO_NORMS",
+      "stored":"YES",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":0.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"many"
+    },
+    "storedNormTextArray": {
+      "type":"string",
+      "indexed":"ANALYZED",
+      "stored":"YES",
+      "termVector":"NO",
+      "internName":true,
+      "defaultBoost":1.0,
+      "indexOptions":"DOCS_AND_FREQS_AND_POSITIONS",
+      "cardinality":"many"
+    },
+    "numericInt": {
+      "type":"int",
+      "indexed":"ANALYZED",
+      "internName":true,
+      "stored":"YES",
+      "termVector":"NO",
+      "defaultBoost":0.0,
+      "precisionStep":4,
+      "indexOptions":"DOCS_AND_FREQS",
+      "cardinality":"one"
+    },
+    "numericFloat": {
+      "type":"float",
+      "indexed":"ANALYZED",
+      "internName":true,
+      "stored":"YES",
+      "termVector":"NO",
+      "defaultBoost":0.0,
+      "precisionStep":4,
+      "indexOptions":"DOCS_AND_FREQS",
+      "cardinality":"one"
+    },
+    "numericDouble": {
+      "type":"double",
+      "indexed":"ANALYZED",
+      "internName":true,
+      "stored":"YES",
+      "termVector":"NO",
+      "defaultBoost":0.0,
+      "precisionStep":4,
+      "indexOptions":"DOCS_AND_FREQS",
+      "cardinality":"one"
+    },
+    "numericLong": {
+      "type":"long",
+      "indexed":"ANALYZED",
+      "internName":true,
+      "stored":"YES",
+      "termVector":"NO",
+      "defaultBoost":0.0,
+      "precisionStep":4,
+      "indexOptions":"DOCS_AND_FREQS",
+      "cardinality":"one"
+    }
+  },
+  
+  "returnFormats": {
+    "string": {
+      "type":"string",
+      "cardinality":"one"
+    },
+    "strarr": {
+      "type":"string",
+      "cardinality":"many"
+    },
+    "int": {
+      "type":"int",
+      "cardinality":"one"
+    },
+    "intarr": {
+      "type":"int",
+      "cardinality":"many"
+    },
+    "float": {
+      "type":"float",
+      "cardinality":"one"
+    },
+    "floatarr": {
+      "type":"float",
+      "cardinality":"many"
+    },
+    "double": {
+      "type":"double",
+      "cardinality":"one"
+    },
+    "doublearr": {
+      "type":"double",
+      "cardinality":"many"
+    },
+    "boolean": {
+      "type":"boolean",
+      "cardinality":"one"
+    },
+    "boolarr": {
+      "type":"boolean",
+      "cardinality":"many"
+    }
+  },
+  
+  "fieldSelectors": {
+    "suggest": {
+      "names": {
+        "_id":"string",
+        "name":"string",
+        "name_whole":"string",
+        "aliases":"string",
+        "aliases_whole":"string",
+        "place_types":"string",
+        "place_types_whole":"string",
+        "themes": "string",
+        "themes_whole":"string",
+        "frequency": "int",
+        "operator": "string"
+      },
+      "expressions": {
+      },
+      "patterns": {
+      }
+    },
+    "noexp": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "geo_path_names":"strarr",
+        "geo_path_ids":"strarr",
+        "geo_path_types":"strarr",
+        "geo_path_active":"boolarr",
+        "str_child_count":"int",
+        "country_code":"string",
+        "airport_code":"string",
+        "language":"string",
+        "aliases":"strarr",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "place_type_geo_planet":"string",
+        "continent":"string",
+        "str_ta_total_ratings":"int",
+        "lp_guide_id":"string",
+        "wiki_guide_id":"string",
+        "wiki_voyage_guide_id":"string",
+        "str_star_rating":"float",
+        "hotel_img_url":"string",
+        "str_ta_rating":"float",
+        "str_hotel_avg_price":"float",
+        "hotel_low_price":"float",
+        "hotel_high_price":"float",
+        "str_lat_ce_small_world":"double",
+        "str_long_ce_small_world":"double",
+        "str_lat_ne_small_world":"double",
+        "str_long_ne_small_world":"double",
+        "str_lat_sw_small_world":"double",
+        "str_long_sw_small_world":"double",
+        "source":"strarr",
+        "themes":"strarr",
+        "img_pf_url":"strarr",
+		"img_pf_tn_url":"strarr",
+		"img_pf_owner":"strarr",
+		"img_pf_owner_url":"strarr",
+		"img_pf_page_url":"strarr",
+		"img_pf_title":"strarr",
+		"img_pf_source":"strarr",
+        "img_tp_url":"strarr",
+		"img_tp_tn_url":"strarr",
+		"img_tp_owner":"strarr",
+		"img_tp_owner_url":"strarr",
+		"img_tp_page_url":"strarr",
+		"img_tp_title":"strarr",
+		"img_tp_source":"strarr",
+		"is_top_pick":"boolean",
+        "time_zone":"string"
+      },
+      "expressions": {
+      },
+      "patterns": {
+      }
+    },
+    "rtr": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "geo_path_names":"strarr",
+        "geo_path_types":"strarr",
+        "aliases":"strarr",
+        "country_code":"string",
+        "airport_code":"string",
+        "continent":"string",
+        "lat_ce_small_world":"double",
+        "long_ce_small_world":"double",
+        "source":"strarr",
+        "themes":"strarr",
+        "source_id_travel_yaari":"strarr",
+        "source_id_red_bus":"strarr"
+      },
+      "expressions": {
+      },
+      "patterns": {
+      }
+    },
+    "iospass": {
+      "names": {
+        "time_zone":"string",
+        "_id":"string"
+      },
+      "expressions": {
+      },
+      "patterns": {
+      }
+    },
+    "default": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "geo_path_names":"strarr",
+        "geo_path_ids":"strarr",
+        "geo_path_types":"strarr",
+        "geo_path_active":"boolarr",
+        "str_child_count":"int",
+        "country_code":"string",
+        "airport_code":"string",
+        "language":"string",
+        "aliases":"strarr",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "place_type_geo_planet":"string",
+        "continent":"string",
+        "str_ta_total_ratings":"int",
+        "lp_guide_id":"string",
+        "wiki_guide_id":"string",
+        "wiki_voyage_guide_id":"string",
+        "str_star_rating":"float",
+        "hotel_img_url":"string",
+        "str_ta_rating":"float",
+        "str_hotel_avg_price":"float",
+        "hotel_low_price":"float",
+        "hotel_high_price":"float",
+        "str_lat_ce_small_world":"double",
+        "str_long_ce_small_world":"double",
+        "str_lat_ne_small_world":"double",
+        "str_long_ne_small_world":"double",
+        "str_lat_sw_small_world":"double",
+        "str_long_sw_small_world":"double",
+        "source":"strarr",
+        "themes":"strarr",
+        "img_pf_url":"strarr",
+		"img_pf_tn_url":"strarr",
+		"img_pf_owner":"strarr",
+		"img_pf_owner_url":"strarr",
+		"img_pf_page_url":"strarr",
+		"img_pf_title":"strarr",
+		"img_pf_source":"strarr",
+        "img_tp_url":"strarr",
+		"img_tp_tn_url":"strarr",
+		"img_tp_owner":"strarr",
+		"img_tp_owner_url":"strarr",
+		"img_tp_page_url":"strarr",
+		"img_tp_title":"strarr",
+		"img_tp_source":"strarr",
+		"is_top_pick":"boolean",
+        "time_zone":"string",
+        "fs_id":"string",
+        "fb_likes":"int",
+        "sights_count":"int",
+        "fs_count":"int",
+        "entertainment_count":"int",
+        "eat_count":"int",
+        "night_life_count":"int",
+        "activities_count":"int",
+        "stay_count":"int",
+        "shopping_count":"int",
+        "town_count":"int",
+        "zom_rating":"float",
+        "population_rank":"int",
+        "show_all_place_types":"boolean",
+        "flight_count":"int",
+        "source_id_travel_yaari":"strarr",
+        "source_id_red_bus":"strarr"
+      },
+      "expressions": {
+        
+      },
+      "patterns": {
+        "source_id_.*":"string"
+      }
+    },
+    "debug": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "geo_path_names":"strarr",
+        "geo_path_ids":"strarr",
+        "str_child_count":"int",
+        "country_code":"string",
+        "airport_code":"string",
+        "language":"string",
+        "aliases":"strarr",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "place_type_geo_planet":"string",
+        "continent":"string",
+        "str_ta_total_ratings":"int",
+        "lp_guide_id":"string",
+        "wiki_guide_id":"string",
+        "wiki_voyage_guide_id":"string",
+        "str_star_rating":"float",
+        "hotel_img_url":"string",
+        "str_ta_rating":"float",
+        "str_hotel_avg_price":"float",
+        "hotel_low_price":"float",
+        "hotel_high_price":"float",
+        "str_lat_ce_small_world":"double",
+        "str_long_ce_small_world":"double",
+        "str_lat_ne_small_world":"double",
+        "str_long_ne_small_world":"double",
+        "str_lat_sw_small_world":"double",
+        "str_long_sw_small_world":"double",
+        "source":"strarr",
+        "themes":"strarr",
+        "is_top_pick":"boolean",
+        "guide_text":"string"
+     },
+      "expressions": {
+      },
+      "patterns": {
+        "source_id_.*":"string"
+      }
+    },
+    "spell": {
+      "names": {
+        "_id":"string",
+        "name":"string",
+        "place_type_small_world":"string",
+        "source_id_ct_hotels":"string",
+        "source_id_ct_cities":"string"
+      },
+      "expressions": {
+      },
+      "patterns": {
+      }
+    },
+    "lucenescoresdebug": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "geo_path_names":"strarr",
+        "str_child_count":"int",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "place_type_geo_planet":"string",
+        "source":"strarr",
+        "themes":"strarr",
+        "is_top_pick":"boolean",
+        "fb_likes":"int",
+        "grid_id":"int",
+        "hotel_count_3star":"int",
+        "total_photo_count":"int",
+        "lp_guide_id":"string",
+        "wiki_guide_id":"string",
+        "wiki_voyage_guide_id":"string"
+      },
+      "expressions": {
+        "score":"score"
+      },
+      "patterns": {
+      }
+    },
+    "rankdbg": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "geo_path_names":"strarr",
+        "str_child_count":"int",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "place_type_geo_planet":"string",
+        "source":"strarr",
+        "themes":"strarr",
+        "is_top_pick":"boolean",
+        "fb_likes":"int",
+        "grid_id":"int",
+        "hotel_count_3star":"int",
+        "total_photo_count":"int"
+      },
+      "expressions": {
+        "isfullgeo":"isfullgeo",
+        "sanityRanker":"sanityRanker",
+        "sanityRankerNoAdmin":"sanityRankerNoAdmin",
+        "nlpComparator":"nlpComparator",
+        "nlpNameComparator":"nlpNameComparator",
+        "adminRank": "adminRank",
+        "hotelSignals1":"hotelSignals1",
+        "hotelSignals2":"hotelSignals2",
+        "childRank":"childRankBucket",
+        "sourceRank":"sourceRank",
+        "poiRank":"poiRank",
+        "guideRank": "guideRank",
+        "flightCountRank": "flightCountRank",
+        "sightCountRank": "sightCountRank",
+        "hotelCountRank": "hotelCountRank",
+        "destSourceRank": "destSourceRank",
+        "boostminpos":"boostminpos",
+        "childCount":"childCount",
+        "fbCountRank":"fbCountRank",
+        "fsCountRank":"fsCountRank",
+        "zom_rating":"zom_rating",
+        "fb_count":"fbCount",
+        "fs_count":"fsCount",
+        "ta_rank":"taRank",
+        "flightCountRankNorm":"flightCountRankNorm", 
+        "sightCountRankNorm":"sightCountRankNorm", 
+        "hotelCountRankNorm":"hotelCountRankNorm",
+        "nlpComparatorNoAdmin":"nlpComparatorNoAdmin",
+        "nameRankFilter":"nameRankFilter",
+        "isFullExactNameOrAliases":"isFullExactNameOrAliases",
+        "isFullExactName":"isFullExactName",
+        "isFullExactAliases":"isFullExactAliases",
+        "fullNameGeoMatch":"fullNameGeoMatch",
+        "is_top_pick_ord":"is_top_pick_ord",
+        "score":"score"
+      },
+      "patterns": {
+      }
+    },
+    "srp": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type_small_world":"string",
+        "place_type_geo_planet":"string",
+        "geo_path_ids":"strarr",
+        "geo_path_names":"strarr",
+        "geo_path_types":"strarr",
+        "geo_path_active":"boolarr",
+        "lp_guide_id":"string",
+        "wiki_guide_id":"string",
+        "wiki_voyage_guide_id":"string",
+        "airport_code":"string",
+        "str_hotel_avg_price":"float",
+        "time_zone":"string",
+        "str_lat_ce_small_world":"double",
+        "str_long_ce_small_world":"double",
+        "str_lat_ne_small_world":"double",
+        "str_long_ne_small_world":"double",
+        "str_lat_sw_small_world":"double",
+        "str_long_sw_small_world":"double",
+        "str_star_rating":"float",
+        "fs_id":"string",
+        "sights_count":"int",
+        "entertainment_count":"int",
+        "eat_count":"int",
+        "stay_count":"int",
+        "shopping_count":"int",
+        "activities_count":"int",
+        "night_life_count":"int",
+        "town_count":"int",
+        "show_all_place_types":"boolean"
+      },
+      "expressions": {
+        
+      },
+      "patterns": {
+      }
+    },
+    "dest": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "curated_place_types":"strarr",
+        "str_ta_rating":"float",
+        "str_ta_total_ratings":"int",
+        "img_pf_url":"strarr",
+        "img_tp_url":"strarr",
+        "geo_path_names":"strarr",
+        "geo_path_types":"strarr",
+        "geo_path_active":"boolarr",
+        "time_zone":"string",
+        "str_lat_ce_small_world":"double",
+        "str_long_ce_small_world":"double",
+        "str_hotel_avg_price":"float",
+        "str_star_rating":"float",
+        "fs_id":"string",
+        "fb_likes":"int",
+        "fs_count":"int",
+        "zom_rating":"float",
+        "sights_count":"int",
+        "entertainment_count":"int",
+        "eat_count":"int",
+        "stay_count":"int",
+        "shopping_count":"int",
+        "activities_count":"int",
+        "night_life_count":"int",
+        "town_count":"int",
+        "show_all_place_types":"boolean",
+        "hotel_low_price":"float"
+      },
+      "expressions": {
+        
+      },
+      "patterns": {
+      }
+    },
+    "stats": {
+      "names": {
+        "_id":"string",
+        "name":"string",
+        "place_type":"strarr",
+        "place_type_small_world":"string",
+        "eat_count":"int",
+        "stay_count":"int",
+        "town_count":"int",
+        "child_count":"int",
+        "guide_count":"int",
+        "sights_count":"int",
+        "shopping_count":"int",
+        "guide_word_count":"int",
+        "night_life_count":"int",
+        "total_photo_count":"int",
+        "geo_path_ids":"strarr",
+        "geo_path_names":"strarr",
+        "geo_path_types":"strarr",
+        "geo_path_active":"boolarr"
+      },
+      "expressions": {
+        
+      },
+      "patterns": {
+      }
+    },
+    "air": {
+      "names": {
+        "name":"string",
+        "_id":"string",
+        "place_type":"strarr",
+        "place_type_small_world":"string",
+        "place_type_actual":"string",
+        "geo_path_names":"strarr",
+        "geo_path_types":"strarr",
+        "time_zone":"string",
+        "str_lat_ce_small_world":"double",
+        "str_long_ce_small_world":"double",
+        "flight_count":"int",
+        "source_id_ct_airports":"string",
+        "geo":"int",
+        "airport_code":"string"
+      },
+      "expressions": {
+        
+      },
+      "patterns": {
+      }
+    }
+  },
+  
+  "schemata": {
+    "swplaces": {
+      "idField":"_id",
+      "requiredFieldTemplates": {
+        "_id":"idField",
+        "name":"storedNormText",
+        "name_as_id":"keyword",
+        "place_type":"storedTextArray",
+        "is_active":"idField",
+        "source":"idArray",
+        "source_count":"numericInt",
+        "source_rank":"numericInt"
+      },
+      "optionalFieldTemplates": {
+        "themes": "storedTextArray",
+        "child_rank":"numericInt",
+        "area_rank":"numericInt",
+        "population_rank":"numericInt",
+      	"aliases":"storedNormTextArray",
+      	"language":"idField",
+        "country_code":"idField",
+        "airport_code":"idField",
+        "child_count":"numericInt",
+        "hotel_count":"numericInt",
+        "bookings_domestic":"numericInt",
+        "bookings_international":"numericInt",
+        "str_child_count":"stoIdField",
+        "geo_path_aliases":"normTextArray",
+        "gp_aliases_boosted":"normTextArray",
+        "geo_path_ids":"idArray",
+        "geo_path_names":"storedTextArray",
+        "geo_path_types":"storedTextArray",
+        "geo_path_active":"storedTextArray",
+        "parent_wp_guide_id":"stoIdField",
+        "wp_guide_id":"stoIdField",
+        "lp_guide_id":"stoIdField",
+        "parent_lp_guide_id":"stoIdField",
+        "guide_text":"textWithTermVectors",
+        "place_type_small_world":"idField",
+        "place_type_actual":"idField",
+        "place_type_geo_planet":"idField",
+        "curated_place_types":"storedTextArray",
+        "continent":"idField",
+        "wiki_guide_id":"stoIdField",
+        "wiki_voyage_guide_id":"stoIdField",
+        "parent_wiki_guide_id":"stoIdField",
+        "hotel_img_url":"stoIdField",
+        "star_rating":"numericFloat",
+        "ta_rating":"numericFloat",
+        "ta_total_ratings":"numericInt",
+        "hotel_low_price":"stoIdField",
+        "hotel_high_price":"stoIdField",
+        "hotel_avg_price":"numericFloat",
+        "str_hotel_avg_price":"stoIdField",
+        "str_star_rating":"stoIdField",
+        "str_ta_rating":"stoIdField",
+        "str_ta_total_ratings":"stoIdField",
+        "weighted_hotel_count":"numericFloat",
+        "hotel_count_3star":"numericInt",
+        "flight_count":"numericInt",
+        "solid_poi_count":"numericInt",
+        "child_guide_count":"numericInt",
+        "poi_rank":"numericInt",
+        "admin_rank":"numericInt",
+        "sights_count":"numericInt",
+        "town_count":"numericInt",
+        "entertainment_count":"numericInt",
+        "eat_count":"numericInt",
+        "stay_count":"numericInt",
+        "night_life_count":"numericInt",
+        "activities_count":"numericInt",
+        "fb_count":"numericInt",
+        "fb_likes":"numericInt",
+        "fs_count":"numericInt",
+        "shopping_count":"numericInt",
+        "source_rank_dest":"numericInt",
+        "img_pf_url":"stoIdArray",
+		"img_pf_tn_url":"stoIdArray",
+		"img_pf_owner":"stoIdArray",
+		"img_pf_owner_url":"stoIdArray",
+		"img_pf_page_url":"stoIdArray",
+		"img_pf_title":"stoIdArray",
+		"img_pf_source":"stoIdArray",
+        "img_tp_url":"stoIdArray",
+		"img_tp_tn_url":"stoIdArray",
+		"img_tp_owner":"stoIdArray",
+		"img_tp_owner_url":"stoIdArray",
+		"img_tp_page_url":"stoIdArray",
+		"img_tp_title":"stoIdArray",
+		"img_tp_source":"stoIdArray",
+		"is_top_pick":"idField",
+		"zom_rating":"numericFloat",
+		"total_photo_count":"numericInt",
+		"time_zone":"stoIdField",
+		"ta_rank":"numericInt",
+		"fs_id":"stoIdField",
+		"is_from_fs":"idField",
+		"contact_number":"stoIdField",
+		"address":"stoIdField",
+        "guide_count":"numericInt",
+        "guide_word_count":"numericInt",
+        "show_all_place_types":"idField",
+        "source_id_travel_yaari":"idArray",
+        "source_id_red_bus":"idArray"
+      },
+      "patternFieldTemplates": {
+      	"source_id_.*":"idField",
+        "str_lat_.*":"stoIdField",
+        "str_long_.*":"stoIdField",
+        "lat_.*":"numericDouble",
+        "long_.*":"numericDouble"
+      }
+    },
+    "swsuggest": {
+      "idField":"_id",
+      "requiredFieldTemplates": {
+        "_id":"idField",
+        "frequency": "numericInt"
+      },
+      "optionalFieldTemplates": {
+        "name_whole":"keyword",
+        "aliases_whole":"keyword",
+        "place_types_whole":"keyword",
+        "themes_whole":"keyword",
+        "operator": "keyword",
+        "log_queries":"keyword",
+        "place_type_queries":"keyword"
+      },
+      "patternFieldTemplates": {
+      }
+    }
+    
+  }
+}

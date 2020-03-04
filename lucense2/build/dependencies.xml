@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project name="deplendencies" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+  <property name="ver.lucene" value="3.5.0" />
+  <property name="ver.scala" value="2.9.1" />
+  <property name="ver.spring-data" value="1.0.0.M2" />
+
+  <artifact:remoteRepository id="spring-milestone" url="http://maven.springframework.org/milestone" />
+  <artifact:remoteRepository id="spring-release" url="http://maven.springframework.org" />
+  
+  <artifact:dependencies filesetId="build.dependency.fileset" useScope="compile">
+    <dependency groupId="net.sourceforge.cobertura" artifactId="cobertura" version="1.9.4.1" />
+    <dependency groupId="net.java.dev.javacc" artifactId="javacc" version="5.0" />
+    <dependency groupId="org.scala-lang" artifactId="scala-compiler" version="${ver.scala}" />
+  </artifact:dependencies>
+
+  <artifact:dependencies filesetId="dependency.fileset" useScope="compile">
+    <dependency groupId="org.apache.lucene" artifactId="lucene-core" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-queries" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-analyzers" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-highlighter" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-spellchecker" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-grouping" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-facet" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-queryparser" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-misc" version="${ver.lucene}" />
+    <dependency groupId="org.apache.lucene" artifactId="lucene-join" version="${ver.lucene}" />
+    <dependency groupId="org.neo4j" artifactId="neo4j-community" version="1.6" />
+    <dependency groupId="redis.clients" artifactId="jedis" version="2.0.0" />
+    <dependency groupId="log4j" artifactId="log4j" version="1.2.16" />
+    <dependency groupId="org.codehaus.jackson" artifactId="jackson-mapper-asl" version="1.9.4" />
+    <dependency groupId="org.codehaus.jackson" artifactId="jackson-core-asl" version="1.9.4" />
+    <dependency groupId="org.mongodb" artifactId="mongo-java-driver" version="2.7.3" />
+    <dependency groupId="it.unimi.dsi" artifactId="fastutil" version="6.4.2" />
+    <dependency groupId="org.scala-lang" artifactId="scala-library" version="${ver.scala}" />
+    <!--dependency groupId="org.springframework.data" artifactId="spring-data-oracle" version="${ver.spring-data}" />
+    <dependency groupId="org.springframework.data" artifactId="spring-data-jdbc-core" version="${ver.spring-data}" /-->
+    <remoteRepository refid="spring-milestone" />
+    <remoteRepository refid="spring-release" />
+  </artifact:dependencies>
+
+</project>
